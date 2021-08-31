@@ -59,21 +59,22 @@
 
         document.getElementById("btn").addEventListener("click", clickFn)
         document.getElementById("btn").addEventListener("click", clickFn)
-        cancelWatch();
+        
+        // cancelWatch();
 
         document.getElementById("btn").addEventListener("click", clickFn)
 
-        setTimeout(function () {
-            document.getElementById("btn").removeEventListener("click", clickFn)
-        }, 3000)
+        // setTimeout(function () {
+        //     document.getElementById("btn").removeEventListener("click", clickFn)
+        // }, 3000)
 
-        setTimeout(function () {
-            document.getElementById("btn").removeEventListener("click", clickFn)
-        }, 13000)
+        // setTimeout(function () {
+        //     document.getElementById("btn").removeEventListener("click", clickFn)
+        // }, 13000)
 
-        setInterval(function () {
-            console.log(wp)
-        }, 5000)
+        // setInterval(function () {
+        //     console.log(wp)
+        // }, 5000)
 
         function onResize(){
 
@@ -82,9 +83,11 @@
         window.addEventListener("resize", onResize);
 
 
-        setTimeout(function () {
-            window.removeEventListener("resize", onResize);
-        }, 20000)
+        // setTimeout(function () {
+        //     window.removeEventListener("resize", onResize);
+        // }, 20000)
+
+    
 
     </script>
 
