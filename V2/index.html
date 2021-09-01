@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <button id="btn" type="button">点我</button>
+
+    <script type="module">
+      import EVM from "./evm.mjs";
+
+      const wp = new WeakMap();
+      const evm = new EVM();
+
+      evm.watch();
+      evm.onAdd(function (target, event, fn) {
+        let t = wp.get(target);
+        if (!t) {
+          t = Object.create(null);
+          wp.set(target, t);
+        }
+        if (!t[event]) {
+          t[event] = [];
+        }
+        t[event].push(fn);
+        console.log(wp);
+      });
+
+      evm.onRemove(function (target, event, fn) {
+        let t = wp.get(target);
+        if (!t) {
+          return;
+        }
+        if (!t[event]) {
+          return;
+        }
+        const index = t[event].findIndex((f) => f === fn);
+        if (index >= 0) {
+          t[event].splice(index, 1);
+        }
+        if (t[event].length === 0) {
+          delete t[event];
+        }
+        if (Object.keys(t).length === 0) {
+          wp.delete(target);
+        }
+        console.log(wp);
+      });
+
+      function clickFn(e) {
+        console.log(this === e.target);
+      }
+
+      document.getElementById("btn").addEventListener("click", clickFn);
+      document.getElementById("btn").addEventListener("click", clickFn);
+
+      // cancelWatch();
+
+      document.getElementById("btn").addEventListener("click", clickFn);
+
+      setTimeout(function () {
+          document.getElementById("btn").removeEventListener("click", clickFn)
+      }, 3000)
+
+      setTimeout(function () {
+          document.getElementById("btn").removeEventListener("click", clickFn)
+      }, 13000)
+
+      setInterval(function () {
+          console.log(wp)
+      }, 5000)
+
+      function onResize() {}
+
+      window.addEventListener("resize", onResize);
+
+      setTimeout(function () {
+          window.removeEventListener("resize", onResize);
+      }, 20000)
+    </script>
+  </body>
+</html>

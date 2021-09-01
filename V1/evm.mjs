@@ -45,6 +45,8 @@ export function watch(addCallback = _callback, removeCallback = _callback) {
 }
 
 export function cancelWatch() {
+    rvAdd.revoke();
+    rvRemove.revoke();
     ep.addEventListener = orgEventTargetPro.addEventListener;
     ep.removeEventListener = orgEventTargetPro.removeEventListener;
 }

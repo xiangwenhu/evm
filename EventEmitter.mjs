@@ -66,7 +66,7 @@ export default class EventEmitter {
         return this;
     };
 
-    emit(event, args = []) {
+    emit(event, ...args) {
         const listeners = this.#events[event];
         if (!listeners) return;
 
