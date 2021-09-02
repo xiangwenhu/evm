@@ -1,58 +1,47 @@
 
 import EventEmitter from "../EventEmitter.mjs";
+import EvmEventsMap from "./evmEventsMap.mjs";
+import { createRevocableProxy, createApplyHanlder } from "./util.mjs"
 
 // 保留原始的原型
 const orgEventTargetPro = { ...EventTarget.prototype };
-
-const callback = () => { };
-
-function createRevocableProxy(obj, handler) {
-  return Proxy.revocable(obj, handler);
-}
-
-function createApplyHanlder(callback) {
-  return {
-    apply(target, ctx, args) {
-      callback(...[ctx].concat(args));
-      return Reflect.apply(...arguments);
-    }
-  }
-}
-
 
 export default class EVM {
 
   #ep = EventTarget.prototype;
   #rvAdd;
   #rvRemove;
-  #events = new EventEmitter();
+  #emitter = new EventEmitter();
+  #eventsMap = new EvmEventsMap();
 
   onAdd(fn) {
-    this.#events.on("on-add", fn)
+    this.#emitter.on("on-add", fn)
   }
 
   offAdd(fn) {
-    this.#events.off("on-add", fn)
+    this.#emitter.off("on-add", fn)
   }
 
   onRemove(fn) {
-    this.#events.on("on-remove", fn)
+    this.#emitter.on("on-remove", fn)
   }
 
   offRemove() {
-    this.#events.off("on-remove", fn)
+    this.#emitter.off("on-remove", fn)
   }
 
   offAll() {
-    this.#events.offAll();
+    this.#emitter.offAll();
   }
 
   #innerAddCallback = (...args) => {
-    this.#events.emit("on-add", ...args)
+    this.#eventsMap.add(...args);
+    this.#emitter.emit("on-add", ...args)
   }
 
-  #innerRemoveCallback = (...args) =>  {
-    this.#events.emit("on-remove", ...args)
+  #innerRemoveCallback = (...args) => {
+    this.#eventsMap.remove(...args);
+    this.#emitter.emit("on-remove", ...args)
   }
 
   watch() {
@@ -71,13 +60,16 @@ export default class EVM {
     if (this.#rvAdd) {
       this.#rvAdd.revoke();
     }
-    ep.addEventListener = orgEventTargetPro.addEventListener;
+    this.#ep.addEventListener = orgEventTargetPro.addEventListener;
 
     if (this.#rvRemove) {
       this.#rvRemove.revoke();
     }
-    ep.removeEventListener = orgEventTargetPro.removeEventListener;
+    this.#ep.removeEventListener = orgEventTargetPro.removeEventListener;
   }
 
+  getData() {
+    return this.#eventsMap.getData();
+  }
 
 }

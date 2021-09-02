@@ -16,49 +16,14 @@
       const wp = new WeakMap();
       const evm = new EVM();
 
-      evm.watch();
-      evm.onAdd(function (target, event, fn) {
-        let t = wp.get(target);
-        if (!t) {
-          t = Object.create(null);
-          wp.set(target, t);
-        }
-        if (!t[event]) {
-          t[event] = [];
-        }
-        t[event].push(fn);
-        console.log(wp);
-      });
-
-      evm.onRemove(function (target, event, fn) {
-        let t = wp.get(target);
-        if (!t) {
-          return;
-        }
-        if (!t[event]) {
-          return;
-        }
-        const index = t[event].findIndex((f) => f === fn);
-        if (index >= 0) {
-          t[event].splice(index, 1);
-        }
-        if (t[event].length === 0) {
-          delete t[event];
-        }
-        if (Object.keys(t).length === 0) {
-          wp.delete(target);
-        }
-        console.log(wp);
-      });
-
       function clickFn(e) {
         console.log(this === e.target);
       }
 
-      document.getElementById("btn").addEventListener("click", clickFn);
-      document.getElementById("btn").addEventListener("click", clickFn);
 
-      // cancelWatch();
+      evm.watch();
+      document.getElementById("btn").addEventListener("click", clickFn);
+      document.getElementById("btn").addEventListener("click", clickFn);
 
       document.getElementById("btn").addEventListener("click", clickFn);
 
@@ -71,7 +36,7 @@
       }, 13000)
 
       setInterval(function () {
-          console.log(wp)
+          console.log(evm.getData())
       }, 5000)
 
       function onResize() {}
