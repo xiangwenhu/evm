@@ -10,4 +10,17 @@
 6. ES6 class 私有变量
 7. ES6 模块JS & mjs
 8. ES6 Proxy
-   c
+
+
+
+
+## 相关的
+
+* getEventListeners
+https://github.com/colxi/getEventListeners 
+其只是直接修改了原型方法，结果可行，不推荐这么玩。
+
+* chrome 控制台 getEventListeners获得单个Node的事件
+
+* chrome more tools => Performance monitor 可以得到 JS event listeners, 也就是事件总数
+  

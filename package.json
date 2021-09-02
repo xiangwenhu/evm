@@ -1,0 +1,19 @@
+{
+  "name": "evm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "static": "http-server --cors ./"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiangwenhu/evm.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xiangwenhu/evm/issues"
+  },
+  "homepage": "https://github.com/xiangwenhu/evm#readme"
+}

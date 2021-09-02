@@ -11,6 +11,22 @@
 <body>
 
     <div id="root"></div>
+    <script type="module">
+        import EVM from "http://192.168.16.97:8080/V2/evm.mjs";
+
+        const wp = new WeakMap();
+        const evm = new EVM();
+        evm.watch();
+
+        setInterval(function () {
+            console.log(evm.getData())
+        }, 5000)
+      
+
+        window.__evm_ready__  = true;
+
+        // 次代码执行会慢于后面的代码执行
+    </script>  
     <script src="/react.78399e21.js"></script>
 </body>
 

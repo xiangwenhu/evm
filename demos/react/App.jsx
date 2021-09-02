@@ -27,7 +27,9 @@ export default class App extends React.Component {
     componentDidMount(){
         this.refButton1.current.addEventListener('click', this.onClick1);
 
-        window.addEventListener("resize", ()=> {});
+        window.addEventListener("resize", function onResize(){
+
+        });
     }
 
     render(){
