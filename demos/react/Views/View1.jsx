@@ -42,9 +42,9 @@ export default class View1 extends React.Component {
         return (
             <div>
                  <div>View 1</div>
-                 <button ref = {this.refButton1} type="button" onClick={this.onClick1View1}>Button1</button>
+                 <button id="btn1" ref = {this.refButton1} type="button" onClick={this.onClick1View1}>Button1</button>
 
-                 <button type="button" onClick={this.onClick2}>Button2</button>
+                 <button id="btn2" type="button" onClick={this.onClick2}>Button2</button>
 
                  <button type="button" onClick={this.onClick3}>Button3</button>
 

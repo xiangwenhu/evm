@@ -40,6 +40,11 @@ export function isSameStringifyObject(obj1, obj2) {
 }
 
 export function isSameFunction(fn1, fn2, compareContent = false) {
+
+    if (!isFunction(fn1) || !isFunction(fn2)) {
+        return false;
+    }
+
     if (!compareContent) {
         return fn1 === fn2;
     }

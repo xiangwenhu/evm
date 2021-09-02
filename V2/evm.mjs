@@ -35,7 +35,14 @@ export default class EVM {
   }
 
   #innerAddCallback = (target, event, listener, options) => {
+
+    const { isInWhiteList } = this.options;
     const argList = [target, event, listener, options];
+
+    if (isInWhiteList(target, event, listener, options)) {
+      return;
+    }
+
     if (!isFunction(listener)) {
       return console.warn("EVM::innerAddCallback listener must be a function");
     }
@@ -128,7 +135,7 @@ export default class EVM {
   }
 
   getAlarmData() {
-     
+
   }
 
 }

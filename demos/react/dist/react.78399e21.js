@@ -29752,10 +29752,12 @@ var View1 = /*#__PURE__*/function (_React$Component) {
     key: "render",
     value: function render() {
       return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("div", null, "View 1"), /*#__PURE__*/_react.default.createElement("button", {
+        id: "btn1",
         ref: this.refButton1,
         type: "button",
         onClick: this.onClick1View1
       }, "Button1"), /*#__PURE__*/_react.default.createElement("button", {
+        id: "btn2",
         type: "button",
         onClick: this.onClick2
       }, "Button2"), /*#__PURE__*/_react.default.createElement("button", {
