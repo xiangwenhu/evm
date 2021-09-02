@@ -52,10 +52,9 @@ export default class EVM {
 
   #innerRemoveCallback = (target, event, listener, options) => {
     const argList = [target, event, listener, options];
-    if (event === "error") {
-      console.log("innerRemoveCallback error:", event, target);
+    if (!isFunction(listener)) {
+      return console.warn("EVM::innerAddCallback listener must be a function");
     }
-
     this.#eventsMap.remove(...argList);
     this.#emitter.emit("on-remove", ...argList)
   }
