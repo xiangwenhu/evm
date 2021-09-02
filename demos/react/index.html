@@ -19,11 +19,12 @@
         evm.watch();
 
         setInterval(function () {
-            console.log(evm.getData())
+            console.log(evm.data)
         }, 5000)
       
 
         window.__evm_ready__  = true;
+        window.__evm__ = evm;
 
         // 次代码执行会慢于后面的代码执行
     </script>  

@@ -1,51 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
 
-  <body>
-    <button id="btn" type="button">点我</button>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+</head>
 
-    <script type="module">
-      import EVM from "./evm.mjs";
+<body>
+  <button id="btn" type="button">点我</button>
 
-      const wp = new WeakMap();
-      const evm = new EVM();
+  <script type="module">
+    import EVM from "./evm.mjs";
 
-      function clickFn(e) {
-        console.log(this === e.target);
-      }
+    const wp = new WeakMap();
+    const evm = new EVM();
+
+    function clickFn(e) {
+      console.log(this === e.target);
+    }
 
 
-      evm.watch();
-      document.getElementById("btn").addEventListener("click", clickFn);
-      document.getElementById("btn").addEventListener("click", clickFn);
+    evm.watch();
+    document.getElementById("btn").addEventListener("click", clickFn);
+    document.getElementById("btn").addEventListener("click", clickFn, true);
+    document.getElementById("btn").addEventListener("click", clickFn, true);
 
-      document.getElementById("btn").addEventListener("click", clickFn);
+    window.evm = evm;
+    // document.getElementById("btn").addEventListener("click", clickFn);
 
-      setTimeout(function () {
-          document.getElementById("btn").removeEventListener("click", clickFn)
-      }, 3000)
+    // setTimeout(function () {
+    //   console.log("remove click 5000")
+    //   document.getElementById("btn").removeEventListener("click", clickFn)
+    // }, 5000)
 
-      setTimeout(function () {
-          document.getElementById("btn").removeEventListener("click", clickFn)
-      }, 13000)
+    // setTimeout(function () {
+    //   console.log("remove click 13000")
+    //   document.getElementById("btn").removeEventListener("click", clickFn)
+    // }, 13000)
 
-      setInterval(function () {
-          console.log(evm.getData())
-      }, 5000)
+    // setInterval(function () {
+    //   console.log(evm.getData())
+    // }, 5000)
 
-      function onResize() {}
+    // function onResize() { }
 
-      window.addEventListener("resize", onResize);
+    // window.addEventListener("resize", onResize);
 
-      setTimeout(function () {
-          window.removeEventListener("resize", onResize);
-      }, 20000)
-    </script>
-  </body>
+    // setTimeout(function () {
+    //   window.removeEventListener("resize", onResize);
+    // }, 20000)
+  </script>
+</body>
+
 </html>

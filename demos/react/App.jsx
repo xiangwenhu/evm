@@ -1,47 +1,43 @@
 import React from 'react';
-
+import View1 from "./Views/View1"
+import View2 from "./Views/View2"
 
 export default class App extends React.Component {
 
-
-    refButton1 = React.createRef();
-
-   onClick1 = ()=> {
-        console.log('onClick1')
+    state = {
+        viewName: "view1"
+    }
+ 
+    onClick2 = ()=> {
+        this.setState({
+            viewName: "view2"
+        })
     }
 
-   onClick2 = ()=> {
-    console.log('onClick2')
+    onClick1 = ()=> {
+        this.setState({
+            viewName: "view1"
+        })
     }
 
-
-    onClick3 = ()=> {
-        console.log('onClick3')
-    }
-
-   onClick4 = ()=> {
-    console.log('onClick4')
-    }
-
-
-    componentDidMount(){
-        this.refButton1.current.addEventListener('click', this.onClick1);
-
-        window.addEventListener("resize", function onResize(){
-
-        });
+    renerView(){
+       const {viewName} = this.state;
+       switch (viewName){
+           case "view1":
+               return <View1 />
+            default:
+                return <View2 />
+       }
     }
 
     render(){
+
         return (
-            <div>
-                 <button ref = {this.refButton1} type="button" onClick={this.onClick1}>Button1</button>
-
-                 <button type="button" onClick={this.onClick2}>Button2</button>
-
-                 <button type="button" onClick={this.onClick3}>Button3</button>
-
-                <button type="button" onClick={this.onClick4}>Button4</button>
+            <div> 
+                 <button type="button" onClick={this.onClick1}>展示View1</button>
+                 <button type="button" onClick={this.onClick2}>展示View2</button>
+                    <hr />
+                 {this.renerView()}
             </div>
         )
     }

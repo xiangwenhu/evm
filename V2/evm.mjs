@@ -1,18 +1,84 @@
 
 import EventEmitter from "../EventEmitter.mjs";
 import EvmEventsMap from "./evmEventsMap.mjs";
-import { createRevocableProxy, createApplyHanlder } from "./util.mjs"
+import {
+  createRevocableProxy, createApplyHanlder, isFunction,
+  isSameStringifyObject, isSameFunction, boolenFalse
+} from "./util.mjs"
 
 // 保留原始的原型
 const orgEventTargetPro = { ...EventTarget.prototype };
 
-export default class EVM {
 
+const DEFAUL_OPTIONS = {
+  /**
+   * 选项相同判断函数
+   */
+  isSameOptions: isSameStringifyObject,
+  /**
+   * 白名单判断函数
+   */
+  isInWhiteList: boolenFalse
+}
+
+export default class EVM {
   #ep = EventTarget.prototype;
   #rvAdd;
   #rvRemove;
   #emitter = new EventEmitter();
   #eventsMap = new EvmEventsMap();
+  constructor(options = {}) {
+    this.options = {
+      ...DEFAUL_OPTIONS,
+      ...options
+    };
+  }
+
+  #innerAddCallback = (target, event, listener, options) => {
+
+    if (event === "error") {
+      console.log("innerAddCallback error:", event, target);
+    }
+
+    const argList = [target, event, listener, options];
+    if (!isFunction(listener)) {
+      return console.warn("EVM::innerAddCallback listener must be a function");
+    }
+
+    const sameItems = this.#getSameItems(...argList);
+    if (Array.isArray(sameItems) && sameItems.length > 0) {
+      console.warn(event, target, " hasSamgeItems:", sameItems);
+    }
+
+    this.#eventsMap.add(...argList);
+    this.#emitter.emit("on-add", ...argList);
+
+  }
+
+  #innerRemoveCallback = (target, event, listener, options) => {
+    const argList = [target, event, listener, options];
+    if (!isFunction(listener)) {
+      return console.warn("EVM::innerAddCallback listener must be a function");
+    }
+
+    if (event === "error") {
+      console.log("innerRemoveCallback error:", event, target);
+    }
+
+    this.#eventsMap.remove(...argList);
+    this.#emitter.emit("on-remove", ...argList)
+  }
+
+  #getSameItems(target, event, listener, options) {
+
+    if (!this.#eventsMap.hasListener(target, event, listener, options)) {
+      return null;
+    }
+    const { isSameOptions } = this.options;
+    const listeners = this.#eventsMap.data.get(target)[event];
+    const items = listeners.filter(l => isSameFunction(l.listener, listener, true) && isSameOptions(l.options, options));
+    return items;
+  }
 
   onAdd(fn) {
     this.#emitter.on("on-add", fn)
@@ -30,19 +96,18 @@ export default class EVM {
     this.#emitter.off("on-remove", fn)
   }
 
+  onAlarm(fn) {
+    this.#emitter.on("on-alarm", fn)
+  }
+
+  offAlarm(fn) {
+    this.#emitter.off("on-alarm", fn)
+  }
+
   offAll() {
     this.#emitter.offAll();
   }
 
-  #innerAddCallback = (...args) => {
-    this.#eventsMap.add(...args);
-    this.#emitter.emit("on-add", ...args)
-  }
-
-  #innerRemoveCallback = (...args) => {
-    this.#eventsMap.remove(...args);
-    this.#emitter.emit("on-remove", ...args)
-  }
 
   watch() {
     this.#rvAdd = createRevocableProxy(this.#ep.addEventListener,
@@ -68,8 +133,12 @@ export default class EVM {
     this.#ep.removeEventListener = orgEventTargetPro.removeEventListener;
   }
 
-  getData() {
-    return this.#eventsMap.getData();
+  get data() {
+    return this.#eventsMap.data;
+  }
+
+  getAlarmData() {
+     
   }
 
 }
