@@ -17,9 +17,10 @@
         const wp = new WeakMap();
         const evm = new EVM({
             isInWhiteList(target, event, listener, options){
-                if(target.id === "root"){
-                    return true
-                }
+                // if(target.id === "root"){
+                //     return true
+                // }
+                return false;
             }
         });
         evm.watch();
