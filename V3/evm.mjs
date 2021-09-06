@@ -47,6 +47,7 @@ export default class EVM {
 
   #innerAddCallback = (target, event, listener, options) => {
 
+
     const { isInWhiteList } = this.options;
     const argList = [target, event, listener, options];
 
@@ -63,6 +64,8 @@ export default class EVM {
     //   // console.warn(event, target, " hasSamgeItems:", sameItems);
     // }
 
+    console.log("add:", Object.prototype.toString.call(target), event);
+
     if (!this.#eventsMap.hasByTarget(target)) {
       let weakRefTarget = new WeakRef(target);
       argList[0] = weakRefTarget;
@@ -75,10 +78,18 @@ export default class EVM {
   }
 
   #innerRemoveCallback = (target, event, listener, options) => {
+
+
     const argList = [target, event, listener, options];
     if (!isFunction(listener)) {
       return console.warn("EVM::innerAddCallback listener must be a function");
     }
+
+    if (!this.#eventsMap.hasByTarget(target)){
+      return;
+    }
+    console.log("remove:", Object.prototype.toString.call(target), event);
+
     this.#eventsMap.remove(...argList);
     // this.#emitter.emit("on-remove", ...argList)
   }

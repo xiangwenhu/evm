@@ -10,11 +10,15 @@ export default class EvmEventsMap {
      * @returns 
      */
     getKeyFromTarget(target) {
-        return ([...this.#map.keys()].find(wrKey => {
+        const keys = [...this.#map.keys()];
+
+        const index = keys.findIndex(wrKey => {
             const key = wrKey.deref();
             if (!key) return false;
             return key === target;
-        }) || [])[0];
+        });
+
+        return keys[index];
     }
 
     /**
