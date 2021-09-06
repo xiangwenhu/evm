@@ -30,3 +30,28 @@ export function createApplyHanlder(callback) {
         }
     }
 }
+
+export function isFunction(fn) {
+    return typeof fn === 'function'
+}
+
+export function isSameStringifyObject(obj1, obj2) {
+    return JSON.stringify(obj1) === JSON.stringify(obj2)
+}
+
+export function isSameFunction(fn1, fn2, compareContent = false) {
+
+    if (!isFunction(fn1) || !isFunction(fn2)) {
+        return false;
+    }
+
+    if (!compareContent) {
+        return fn1 === fn2;
+    }
+
+    return fn1 === fn2 || fn1.toString() === fn2.toString();
+}
+
+export function boolenFalse() {
+    return false;
+}

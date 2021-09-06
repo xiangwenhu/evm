@@ -12,14 +12,14 @@
 
     <div id="root"></div>
     <script type="module">
-        import EVM from "http://192.168.16.97:8080/V2/evm.mjs";
+        import EVM from "http://192.168.16.97:8080/V3/evm.mjs";
 
         const wp = new WeakMap();
         const evm = new EVM({
             isInWhiteList(target, event, listener, options){
-                // if(target.id === "root"){
-                //     return true
-                // }
+                if(target.id === "btn1"){
+                    return true
+                }
                 return false;
             }
         });

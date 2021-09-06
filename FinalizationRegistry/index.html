@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+
+    <script>
+
+        ; (function () {
+            const unfinalizedTags = new Set()
+            let counter = 0
+
+            const registry = new FinalizationRegistry(held => {
+                console.log('cleanup')
+                for (const tag of held) {
+                    console.log(tag)
+                    unfinalizedTags.delete(tag)
+                }
+            })
+
+            function makePointlessGarbage() {
+                let array = new Array(1000000)
+                const tag = "tag" + counter++
+                unfinalizedTags.add(tag)
+                registry.register(array, tag)
+                for (let i = 0; i < array.length; ++i) {
+                    array[i] = Math.random()
+                }
+                const sum = array.reduce((acc, value) => acc + value, 0)
+                console.log(sum / array.length, counter)
+                array = null
+                if (counter < 100) {
+                    setTimeout(makePointlessGarbage, 10)
+                } else {
+                    console.log(`unfinalizedTags.size=${unfinalizedTags.size}`)
+                }
+            }
+
+            setTimeout(makePointlessGarbage, 10)
+        })()
+    </script>
+</body>
+
+</html>
