@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+
+    </head>
+
+    <body>
+
+
+        <div id="root"></div>
+
+        <script>
+
+            ; (function () {
+
+
+                var rootEl = document.getElementById("root");
+
+                window.wrRef = new WeakRef(rootEl)
+
+
+                rootEl.parentElement.removeChild(rootEl);
+                rootEl = null;
+
+                setInterval(() => {
+
+                    const refObj = window.wrRef.deref();
+                    if (refObj) {
+                        console.log("object", refObj, refObj);
+
+                    }
+                }, 1000)
+
+
+                setInterval(() => {
+
+                    var arr = [];
+                    for (let i = 0; i < 100000; i++) {
+                        arr.push(Math.random())
+                    }
+
+                    window.arr = arr
+
+                }, 100)
+
+
+
+
+            })()
+        </script>
+    </body>
+
+    </html>
+
+
+</body>
+
+</html>
