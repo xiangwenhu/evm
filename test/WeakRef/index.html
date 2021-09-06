@@ -23,46 +23,41 @@
     <body>
 
 
-        <div id="root"></div>
+        <div id="root">xxxxxxxxxxx</div>
 
         <script>
 
-            ; (function () {
 
+            class WeakRefTest {
+                constructor(el) {
+                    this.ref = new WeakRef(el)
+                }
 
-                var rootEl = document.getElementById("root");
-
-                window.wrRef = new WeakRef(rootEl)
-
-
-                rootEl.parentElement.removeChild(rootEl);
-                rootEl = null;
-
-                setInterval(() => {
-
-                    const refObj = window.wrRef.deref();
-                    if (refObj) {
-                        console.log("object", refObj, refObj);
-
-                    }
-                }, 1000)
-
-
-                setInterval(() => {
-
-                    var arr = [];
-                    for (let i = 0; i < 100000; i++) {
-                        arr.push(Math.random())
+                start() {
+                    const tick = () => {
+                        const refObj = this.ref.deref();
+                        if (refObj) {
+                            // console.log("object", refObj);
+                            refObj.textContent = Math.random();
+                        } else {
+                            console.log("cleaned")
+                        }
                     }
 
-                    window.arr = arr
+                    setInterval(tick, 3000)
+                }
 
-                }, 100)
+            }
+
+            let rootEl = document.getElementById("root")
+            const wrt = new WeakRefTest(rootEl);
+            wrt.start();
+            setTimeout(() => {
+                rootEl.remove();
+                rootEl = null
+            }, 5000)
 
 
-
-
-            })()
         </script>
     </body>
 

@@ -11,30 +11,54 @@
 <body>
 
 
+    <div id="root">
+
+    </div>
+
     <script>
 
-        ; (function () {
-           
-
-            var object = {};
-
-            const registry = new FinalizationRegistry(held => {
-                console.log('cleanup')                
-            })
-
-            console.log('obj')
-            registry.register(object, "object----")
+        function dispose(data) {
+            console.log("called: dispose(", data, ")");
+        }
 
 
-            setInterval(function (){
-                object = null;
-                object = {
-                   a: Math.random()
-                };
-            }, 10)
+
+        class TestObject {
+
+            constructor() {
+                this.registry = new FinalizationRegistry((data) => dispose(data));
+                this.data = { a: 133 }
+                this.registry.register(this.data , {a: 123});
+
+                setTimeout(() => {
+                    // this.data = null;
+                    delete this.data
+                }, 1000)
+
+            }
+        }
+
+
 
         
-        })()
+
+        function test() {
+            // let rootEl = document.getElementById("root");
+            window.to = new TestObject();
+
+            console.log("remove")
+            // rootEl.remove();
+            // rootEl = null;
+            // to = null;
+        }
+
+
+        test()
+        window.gc();
+
+
+
+
     </script>
 </body>
 

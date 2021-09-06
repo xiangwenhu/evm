@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <script>
+
+        // https://github.com/tensorflow/tfjs/issues/4864
+        function dispose(data) {
+            console.log("called: dispose(", data, ")");
+        }
+        const registry = new FinalizationRegistry((data) => dispose(data));
+
+        class Tensor {
+            constructor(size) {
+                this.data = { dataId: 123, size, dtype: "string" }; // placeholder values
+                registry.register(this, this.data); // when `this` is GC'ed, pass `this.data` to the callback
+            }
+
+            add(that) { // placeholder implementation, just here for the demo
+                return new Tensor(this.data.size + that.data.size);
+            }
+        }
+
+        function test() {
+            const a = new Tensor(1);
+            const b = new Tensor(2);
+            console.log("add result:", a.add(b));
+        }
+
+        test();
+        window.gc();
+
+    </script>
+</body>
+
+</html>
