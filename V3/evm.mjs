@@ -38,9 +38,11 @@ export default class EVM {
     ({ weakRefTarget }) => {
       console.log("clean up ------------------");
       const target = weakRefTarget.deref();
-      if (target) {
-        this.#eventsMap.removeTarget(target)
+      if (!target) {
+        return console.log("target removed")
       }
+      this.#eventsMap.removeTarget(target)
+
     }
   )
 
@@ -59,7 +61,7 @@ export default class EVM {
 
     const sameItems = this.#getSameItems(...argList);
     if (Array.isArray(sameItems) && sameItems.length > 0) {
-      console.warn(event, target, " hasSamgeItems:", sameItems);
+      // console.warn(event, target, " hasSamgeItems:", sameItems);
     }
 
     if (!this.#eventsMap.hasTarget(target)) {
@@ -67,7 +69,7 @@ export default class EVM {
       this.#listenerRegistry.register(target, { weakRefTarget })
     }
 
-    // this.#eventsMap.add(...argList);
+    this.#eventsMap.add(...argList);
     // this.#emitter.emit("on-add", ...argList);
 
   }
@@ -78,7 +80,7 @@ export default class EVM {
       return console.warn("EVM::innerAddCallback listener must be a function");
     }
     this.#eventsMap.remove(...argList);
-    this.#emitter.emit("on-remove", ...argList)
+    // this.#emitter.emit("on-remove", ...argList)
   }
 
   #getSameItems(target, event, listener, options) {
