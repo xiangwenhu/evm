@@ -3,7 +3,7 @@ import EventEmitter from "../EventEmitter.mjs";
 import EvmEventsMap from "./evmEventsMap.mjs";
 import {
   createRevocableProxy, createApplyHanlder, isFunction,
-  isSameStringifyObject, isSameFunction, boolenFalse
+  isSameStringifyObject, boolenFalse
 } from "./util.mjs"
 
 // 保留原始的原型
@@ -14,12 +14,15 @@ const DEFAUL_OPTIONS = {
   /**
    * 选项相同判断函数
    */
-  isSameOptions: isSameStringifyObject,
+  // isSameOptions: isSameStringifyObject,
   /**
    * 白名单判断函数
    */
   isInWhiteList: boolenFalse
 }
+
+
+const toString = Object.prototype.toString
 
 export default class EVM {
   #ep = EventTarget.prototype;
@@ -47,8 +50,7 @@ export default class EVM {
 
   #innerAddCallback = (target, event, listener, options) => {
 
-
-    const { isInWhiteList } = this.options;
+    const { isInWhiteList, isSameOptions } = this.options;
     const argList = [target, event, listener, options];
 
     if (!isInWhiteList(target, event, listener, options)) {
@@ -59,12 +61,12 @@ export default class EVM {
       return console.warn("EVM::innerAddCallback listener must be a function");
     }
 
-    // const sameItems = this.#getSameItems(...argList);
-    // if (Array.isArray(sameItems) && sameItems.length > 0) {
-    //   // console.warn(event, target, " hasSamgeItems:", sameItems);
-    // }
+    const eItems = this.#eventsMap.getExtremelyItems(...argList, isSameOptions);
+    if (Array.isArray(eItems) && eItems.length > 0) {
+      console.warn(event, target, " hasSamgeItems: type:", event, " name:" + listener.name, "options: " + options);
+    }
 
-    console.log("add:", Object.prototype.toString.call(target), event);
+    // console.log("add:", Object.prototype.toString.call(target), event);
 
     if (!this.#eventsMap.hasByTarget(target)) {
       let weakRefTarget = new WeakRef(target);
@@ -79,31 +81,20 @@ export default class EVM {
 
   #innerRemoveCallback = (target, event, listener, options) => {
 
-
     const argList = [target, event, listener, options];
     if (!isFunction(listener)) {
       return console.warn("EVM::innerAddCallback listener must be a function");
     }
 
-    if (!this.#eventsMap.hasByTarget(target)){
+    if (!this.#eventsMap.hasByTarget(target)) {
       return;
     }
-    console.log("remove:", Object.prototype.toString.call(target), event);
+    // console.log("remove:", Object.prototype.toString.call(target), event);
 
     this.#eventsMap.remove(...argList);
     // this.#emitter.emit("on-remove", ...argList)
   }
 
-  #getSameItems(target, event, listener, options) {
-
-    if (!this.#eventsMap.hasListener(target, event, listener, options)) {
-      return null;
-    }
-    const { isSameOptions } = this.options;
-    const listeners = this.#eventsMap.data.get(target)[event];
-    const items = listeners.filter(l => isSameFunction(l.listener, listener, true) && isSameOptions(l.options, options));
-    return items;
-  }
 
   onAdd(fn) {
     this.#emitter.on("on-add", fn)
@@ -162,8 +153,28 @@ export default class EVM {
     return this.#eventsMap.data;
   }
 
-  getAlarmData() {
+  statistics() {
 
+    const data = this.data;
+    const keys = [...data.keys()];
+
+    const d = keys.map(wr => {
+      const el = wr.deref();
+      if (!el) return null;
+
+      const events = data.get(wr);
+      return {
+        type: toString.call(el),
+        id: el.id,
+        class: el.className,
+        events: Object.keys(events).reduce((obj, cur) => {
+          obj[cur] = events[cur].length
+          return obj
+        }, Object.create(null))
+      }
+    })
+
+    return d;
   }
 
 }

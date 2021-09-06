@@ -16,8 +16,12 @@
 
         const wp = new WeakMap();
         const evm = new EVM({
-            isInWhiteList(target, event, listener, options){
-                if(target.id === "btn1" || [window, document].includes(target)){
+            isInWhiteList(target, event, listener, options) {
+                if (target === window && event === "error") {
+                    return false;
+                }
+
+                if (target.id === "btn1" || [window, document].includes(target)) {
                     return true
                 }
                 return false;
@@ -26,16 +30,16 @@
         evm.watch();
 
         setInterval(function () {
-            console.log("-------");
-            console.log("keys:", [...evm.data.keys()].length)
+            // console.log("-------");
+            console.log("statistics:", evm.statistics())
         }, 5000)
-      
 
-        window.__evm_ready__  = true;
+
+        window.__evm_ready__ = true;
         window.__evm__ = evm;
 
         // 次代码执行会慢于后面的代码执行
-    </script>  
+    </script>
     <script src="./index.jsx"></script>
 </body>
 

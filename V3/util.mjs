@@ -45,6 +45,14 @@ export function isSameFunction(fn1, fn2, compareContent = false) {
         return false;
     }
 
+     if(fn1.length !== fn2.length) {
+         return false;
+     }
+
+     if(fn1.name !== fn2.name){
+         return false;
+     }
+
     if (!compareContent) {
         return fn1 === fn2;
     }

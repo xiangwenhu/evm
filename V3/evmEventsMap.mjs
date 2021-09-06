@@ -1,4 +1,4 @@
-import { createPureObject, isSameStringifyObject, copyListenerOption } from "./util.mjs"
+import { createPureObject, isSameStringifyObject, copyListenerOption, isSameFunction } from "./util.mjs"
 
 export default class EvmEventsMap {
 
@@ -19,6 +19,10 @@ export default class EvmEventsMap {
         });
 
         return keys[index];
+    }
+
+    keys() {
+        return [...this.#map.keys()];
     }
 
     /**
@@ -135,6 +139,53 @@ export default class EvmEventsMap {
      */
     has(wrTarget) {
         return this.#map.has(wrTarget);
+    }
+
+    getEventsObj(target) {
+        let wrTarget = this.getKeyFromTarget(target);
+        if (!wrTarget) {
+            return null;
+        }
+        const eventsObj = this.#map.get(wrTarget);
+        return eventsObj;
+    }
+
+
+    hasListener(target, event, listener, options) {
+        let wrTarget = this.getKeyFromTarget(target);
+        if (!wrTarget) {
+            return false;
+        }
+        const t = this.#map.get(wrTarget);
+        if (!t) return false;
+        const wrListeners = t[event];
+
+        if (!Array.isArray(wrListeners)) {
+            return false;
+        }
+
+        return wrListeners.findIndex(lobj => {
+            const l = lobj.listener.deref();
+            if (!l) {
+                return false;
+            }
+            return l === listener && isSameStringifyObject(options, l.options)
+        })
+
+    }
+
+    getExtremelyItems(target, event, listener, options) {
+
+        const eventsObj = this.getEventsObj(target);
+        if (!eventsObj) {
+            return null;
+        }
+        const listenerObjs = eventsObj[event];
+        if (!listenerObjs) {
+            return null;
+        }
+        const items = listenerObjs.filter(l => isSameFunction(l.listener.deref(), listener, true) && isSameStringifyObject(l.options, options));
+        return items;
     }
 
 
