@@ -1,52 +1,85 @@
-import { createPureObject, isSameStringifyObject } from "./util.mjs"
+import { createPureObject, isSameStringifyObject, copyListenerOption } from "./util.mjs"
 
 export default class EvmEventsMap {
 
-    #wp = new WeakMap();
+    #map = new Map();
+
+    /**
+     * 
+     * @param target  Node节点
+     * @returns 
+     */
+    getKeyFromTarget(target) {
+        return ([...this.#map.keys()].find(wrKey => {
+            const key = wrKey.deref();
+            if (!key) return false;
+            return key === target;
+        }) || [])[0];
+    }
 
     /**
      * 添加
-     * @param target Node节点
+     * @param target Node节点或者 WeakRef(Node)
      * @param event 事件类型，比如click, resize等
      * @param listener 事件处理程序
      */
     add(target, event, listener, options) {
-        const wp = this.#wp;
-        let t = wp.get(target);
+
+        const map = this.#map;
+
+        let t;
+        // target 如果是 WeakRef, 直接使用
+        let wrTarget = target instanceof WeakRef ? target : this.getKeyFromTarget(target);
+
+
+        if (!wrTarget) {
+            wrTarget = new WeakRef(target);
+        }
+        t = this.#map.get(wrTarget);
         if (!t) {
             t = createPureObject();
-            wp.set(target, t);
+            map.set(wrTarget, t);
         }
         if (!t[event]) {
             t[event] = [];
         }
         t[event].push({
-            listener,
-            options
+            listener: new WeakRef(listener),
+            options: copyListenerOption(options)
         });
         return this;
     }
 
     /**
      * 删除
-     * @param target Node节点
+     * @param target Node节点或者 WeakRef(Node)
      * @param event 事件类型，比如click, resize等
      * @param listener 事件处理程序
      * @returns undefined
      */
     remove(target, event, listener, options) {
-        const wp = this.#wp;
-        if (!this.haskey(target)) {
-            return;
-        }
-        if (!this.hasEventType(target, event)) {
-            return;
+        const wp = this.#map;
+
+        let wrTarget = target instanceof WeakRef ? target : this.getKeyFromTarget(target);
+        if (!wrTarget) {
+            return console.error('EvmEventsMap:: remove faild, target is not found');
         }
 
-        const t = wp.get(target);
+        const t = wp.get(wrTarget);
+        if (!t[event]) {
+            return console.error(`EvmEventsMap:: remove faild, event (${event}) is not found`);
+        }
+
         // options 不能比同一个对象，比字符串的值
-        const index = t[event].findIndex(l => l.listener === listener
-            && isSameStringifyObject(l.options, options));
+        const index = t[event].findIndex(l => {
+
+            const fun = l.deref();
+            if (!fun) {
+                return false;
+            }
+
+            return fun === listener && isSameStringifyObject(l.options, options)
+        });
 
         if (index >= 0) {
             t[event].splice(index, 1);
@@ -60,63 +93,48 @@ export default class EvmEventsMap {
         return this;
     }
 
-    removeTarget(target) {
-        if (!this.#wp.has(target)) {
-            return;
-        }
-        return this.#wp.delete(target);
-    }
-
-    hasTarget(target) {
-        return this.#wp.has(target);
+    /**
+     * 
+     * @param wrTarget WeakRef(Node)
+     * @returns 
+     */
+    remove(wrTarget) {
+        return this.#map.delete(wrTarget);
     }
 
     /**
-     * 是否有这个key
+     * 
+     * @param target  Node
+     * @returns 
+     */
+    removeByTarget(target) {
+        const wrTarget = this.getKeyFromTarget(target);
+        if (!wrTarget) {
+            return;
+        }
+        return this.#map.delete(wrTarget);
+    }
+
+    /**
+     * Node
      * @param target Node节点
      * @returns 
      */
-    haskey(target) {
-        return this.#wp.has(target);
+    hasByTarget(target) {
+        return !!this.getKeyFromTarget(target)
     }
 
     /**
-     * 是否需有指定的事件类型
-     * @param target Node节点
-     * @param event 事件类型，比如click, resize等
-     * @returns  布尔值
+     * 
+     * @param wrTarget WeakRef(Node)
+     * @returns 
      */
-    hasEventType(target, event) {
-        // 不是对象
-        if (typeof target !== "object") {
-            return false;
-        }
-        const wp = this.#wp;
-        let t = wp.get(target);
-        if (!t) {
-            return false;
-        }
-        if (!t[event]) {
-            return false;
-        }
-        return true;
+    has(wrTarget) {
+        return this.#map.has(wrTarget);
     }
 
-    /**
-     * 是否需有指定的事件类型的事件处理程序
-     * @param target Node节点
-     * @param event 事件类型，比如click, resize等
-     * @param listener 事件处理程序
-     * @returns 布尔值
-     */
-    hasListener(target, event, listener, options) {
-        if (!this.hasEventType(target, event)) {
-            return false;
-        }
-        return this.#wp.get(target)[event].findIndex(l => l.listener === listener && isSameStringifyObject(l.options, options))
-    }
 
     get data() {
-        return this.#wp
+        return this.#map
     }
 }

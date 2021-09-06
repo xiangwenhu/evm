@@ -55,3 +55,19 @@ export function isSameFunction(fn1, fn2, compareContent = false) {
 export function boolenFalse() {
     return false;
 }
+
+
+/**
+ * 忽略 signal属性 https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/addEventListener
+ * @param option 
+ */
+export function copyListenerOption(option) {
+    if (typeof option !== "object") {
+        return option;
+    }
+    const opt = {
+        ...option
+    }
+    delete opt.signal
+    return opt;
+}

@@ -37,12 +37,11 @@ export default class EVM {
   #listenerRegistry = new FinalizationRegistry(
     ({ weakRefTarget }) => {
       console.log("clean up ------------------");
-      const target = weakRefTarget.deref();
-      if (!target) {
-        return console.log("target removed")
+      if (!weakRefTarget) {
+        return;
       }
-      this.#eventsMap.removeTarget(target)
-
+      this.#eventsMap.remove(weakRefTarget);
+      console.log("length", [...this.#eventsMap.data.keys()].length);
     }
   )
 
@@ -59,14 +58,15 @@ export default class EVM {
       return console.warn("EVM::innerAddCallback listener must be a function");
     }
 
-    const sameItems = this.#getSameItems(...argList);
-    if (Array.isArray(sameItems) && sameItems.length > 0) {
-      // console.warn(event, target, " hasSamgeItems:", sameItems);
-    }
+    // const sameItems = this.#getSameItems(...argList);
+    // if (Array.isArray(sameItems) && sameItems.length > 0) {
+    //   // console.warn(event, target, " hasSamgeItems:", sameItems);
+    // }
 
-    if (!this.#eventsMap.hasTarget(target)) {
+    if (!this.#eventsMap.hasByTarget(target)) {
       let weakRefTarget = new WeakRef(target);
-      this.#listenerRegistry.register(target, { weakRefTarget })
+      argList[0] = weakRefTarget;
+      this.#listenerRegistry.register(target, { weakRefTarget });
     }
 
     this.#eventsMap.add(...argList);
