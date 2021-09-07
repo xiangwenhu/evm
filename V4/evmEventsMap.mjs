@@ -31,7 +31,7 @@ export default class EvmEventsMap {
      * @param event 事件类型，比如click, resize等
      * @param listener 事件处理程序
      */
-    add(target, event, listener, options) {
+    addListener(target, event, listener, options) {
 
         const map = this.#map;
 
@@ -65,15 +65,15 @@ export default class EvmEventsMap {
      * @param listener 事件处理程序
      * @returns undefined
      */
-    remove(target, event, listener, options) {
-        const wp = this.#map;
+    removeListener(target, event, listener, options) {
+        const map = this.#map;
 
         let wrTarget = target instanceof WeakRef ? target : this.getKeyFromTarget(target);
         if (!wrTarget) {
             return console.error('EvmEventsMap:: remove faild, target is not found');
         }
 
-        const t = wp.get(wrTarget);
+        const t = map.get(wrTarget);
         if (!t[event]) {
             return console.error(`EvmEventsMap:: remove faild, event (${event}) is not found`);
         }
@@ -81,7 +81,7 @@ export default class EvmEventsMap {
         // options 不能比同一个对象，比字符串的值
         const index = t[event].findIndex(l => {
 
-            const fun = l.deref();
+            const fun = l.listener.deref();
             if (!fun) {
                 return false;
             }
@@ -96,7 +96,7 @@ export default class EvmEventsMap {
             delete t[event];
         }
         if (Object.keys(t).length === 0) {
-            wp.delete(target);
+            map.delete(target);
         }
         return this;
     }

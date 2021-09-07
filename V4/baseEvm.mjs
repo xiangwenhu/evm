@@ -68,7 +68,7 @@ export default class EVM {
       this.#listenerRegistry.register(target, { weakRefTarget });
     }
 
-    this.#eventsMap.add(...argList);
+    this.#eventsMap.addListener(...argList);
     // this.#emitter.emit("on-add", ...argList);
 
   }
@@ -85,7 +85,7 @@ export default class EVM {
     }
     // console.log("remove:", Object.prototype.toString.call(target), event);
 
-    this.#eventsMap.remove(...argList);
+    this.#eventsMap.removeListener(...argList);
     // this.#emitter.emit("on-remove", ...argList)
   }
 

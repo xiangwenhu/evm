@@ -31,7 +31,7 @@ export default class EvmEventsMap {
      * @param event 事件类型，比如click, resize等
      * @param listener 事件处理程序
      */
-    add(target, event, listener, options) {
+    addListener(target, event, listener, options) {
 
         const map = this.#map;
 
@@ -65,7 +65,7 @@ export default class EvmEventsMap {
      * @param listener 事件处理程序
      * @returns undefined
      */
-    remove(target, event, listener, options) {
+    removeListener(target, event, listener, options) {
         const wp = this.#map;
 
         let wrTarget = target instanceof WeakRef ? target : this.getKeyFromTarget(target);
