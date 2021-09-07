@@ -16,7 +16,7 @@
 
     const evm = new EVM({
       isInWhiteList(target) {
-        return target === window // || target.id
+        return target === window  || target.id
       }
     });
 
@@ -47,7 +47,7 @@
       // console.log("-------");
       const data = await evm.statistics();
       console.log("statistics:", data);
-    }, 5000)
+    }, 3000)
 
     function onResize() { }
 
