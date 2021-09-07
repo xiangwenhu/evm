@@ -70,6 +70,7 @@ export default class EventEmitter {
         const listeners = this.#events[event];
         if (!listeners) return;
 
+        // 倒叙遍历，不，我就不
         for (let i = 0; i < listeners.length; i++) {
             const listener = listeners[i];
             if (!listener) {
