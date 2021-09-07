@@ -10,7 +10,7 @@ export default class EvmEventsMap {
      * @returns 
      */
     getKeyFromTarget(target) {
-        const keys = [...this.#map.keys()];
+        const keys = this.keys();
 
         const index = keys.findIndex(wrKey => {
             const key = wrKey.deref();

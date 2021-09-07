@@ -3,7 +3,7 @@ import EventEmitter from "../EventEmitter.mjs";
 import EvmEventsMap from "./evmEventsMap.mjs";
 import {
   createRevocableProxy, createApplyHanlder, isFunction,
-  isSameStringifyObject, boolenFalse
+  isSameStringifyObject, boolenFalse, delay
 } from "./util.mjs"
 
 // 保留原始的原型
@@ -63,7 +63,7 @@ export default class EVM {
 
     const eItems = this.#eventsMap.getExtremelyItems(...argList, isSameOptions);
     if (Array.isArray(eItems) && eItems.length > 0) {
-      console.warn(event, target, " hasSamgeItems: type:", event, " name:" + listener.name, "options: " + options);
+      console.warn(toString.call(target), " ExtremelyItems: type:", event, " name:" + listener.name, "options: " + options);
     }
 
     // console.log("add:", Object.prototype.toString.call(target), event);
@@ -153,11 +153,19 @@ export default class EVM {
     return this.#eventsMap.data;
   }
 
-  statistics() {
+  async statistics() {
+
+    if (isFunction(window.gc)) {
+      window.gc();
+    }
+
+
+    const { run } = delay(undefined, 1000);
+
+    await run();
 
     const data = this.data;
     const keys = [...data.keys()];
-
     const d = keys.map(wr => {
       const el = wr.deref();
       if (!el) return null;
@@ -168,7 +176,11 @@ export default class EVM {
         id: el.id,
         class: el.className,
         events: Object.keys(events).reduce((obj, cur) => {
-          obj[cur] = events[cur].length
+          obj[cur] = events[cur].map(e => {
+            const fn = e.listener.deref();
+            if (!fn) return null;
+            return fn.name;
+          }).filter(Boolean)
           return obj
         }, Object.create(null))
       }

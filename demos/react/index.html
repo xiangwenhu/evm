@@ -29,9 +29,10 @@
         });
         evm.watch();
 
-        setInterval(function () {
+        setInterval(async function  () {
             // console.log("-------");
-            console.log("statistics:", evm.statistics())
+            const data = await evm.statistics();
+            console.log("statistics:", data);
         }, 5000)
 
 
