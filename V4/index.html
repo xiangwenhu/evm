@@ -16,7 +16,7 @@
 
     const evm = new EVM({
       isInWhiteList(target) {
-        return target.id
+        return target === window // || target.id
       }
     });
 
@@ -51,11 +51,11 @@
 
     function onResize() { }
 
-    // window.addEventListener("resize", onResize);
+    window.addEventListener("resize", onResize);
 
     setTimeout(function () {
-      // window.removeEventListener("resize", onResize);
-    }, 20000)
+      window.removeEventListener("resize", onResize);
+    }, 5000)
   </script>
 </body>
 

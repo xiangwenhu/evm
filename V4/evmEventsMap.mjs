@@ -80,12 +80,10 @@ export default class EvmEventsMap {
 
         // options 不能比同一个对象，比字符串的值
         const index = t[event].findIndex(l => {
-
             const fun = l.listener.deref();
             if (!fun) {
                 return false;
             }
-
             return fun === listener && isSameStringifyObject(l.options, options)
         });
 
@@ -96,7 +94,7 @@ export default class EvmEventsMap {
             delete t[event];
         }
         if (Object.keys(t).length === 0) {
-            map.delete(target);
+            map.delete(wrTarget);
         }
         return this;
     }
