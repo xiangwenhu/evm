@@ -39,11 +39,11 @@ export default class ETEVM extends BaseEvm {
 
     this.#rvAdd = createRevocableProxy(this.#ep.addListener,
       createApplyHanlder(this.innerAddCallback));
-    this.#ep.addEventListener = this.#rvAdd.proxy;
+    this.#ep.on = this.#ep.addListener = this.#rvAdd.proxy;
 
     this.#rvRemove = createRevocableProxy(this.#ep.removeListener,
       createApplyHanlder(this.innerRemoveCallback));
-    this.#ep.removeEventListener = this.#rvRemove.proxy;
+    this.#ep.off = this.#ep.removeListener = this.#rvRemove.proxy;
 
     return () => this.cancelWatch();
   }
@@ -52,12 +52,12 @@ export default class ETEVM extends BaseEvm {
     if (this.#rvAdd) {
       this.#rvAdd.revoke();
     }
-    this.#ep.addEventListener = this.#orgEventTargetPro.addEventListener;
+    this.#ep.on = this.#ep.addListener = this.#orgEventTargetPro.addListener;
 
     if (this.#rvRemove) {
       this.#rvRemove.revoke();
     }
-    this.#ep.removeEventListener = this.#orgEventTargetPro.removeEventListener;
+    this.#ep.off = this.#ep.removeListener = this.#orgEventTargetPro.removeListener;
     this.#watched = false
   }
 

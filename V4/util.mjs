@@ -25,8 +25,10 @@ export function createRevocableProxy(obj, handler) {
 export function createApplyHanlder(callback) {
     return {
         apply(target, ctx, args) {
+            // 因为执行过程中能失败，所以callback后置执行
+            const result = Reflect.apply(...arguments);
             callback(...[ctx].concat(args));
-            return Reflect.apply(...arguments);
+            return result;
         }
     }
 }
@@ -45,13 +47,13 @@ export function isSameFunction(fn1, fn2, compareContent = false) {
         return false;
     }
 
-     if(fn1.length !== fn2.length) {
-         return false;
-     }
+    if (fn1.length !== fn2.length) {
+        return false;
+    }
 
-     if(fn1.name !== fn2.name){
-         return false;
-     }
+    if (fn1.name !== fn2.name) {
+        return false;
+    }
 
     if (!compareContent) {
         return fn1 === fn2;

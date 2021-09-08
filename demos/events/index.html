@@ -23,8 +23,8 @@
         function onMessage(msg) {
             console.log("message received:", msg)
         }
-        emitter.addListener("message", onMessage);
-        // emitter.addListener("message", onMessage);
+        emitter.on("message", onMessage);
+        emitter.on("message", onMessage);
 
         console.log("on === addListener",  emitter.addListener === emitter.on )
 
