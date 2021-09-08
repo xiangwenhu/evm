@@ -75,6 +75,11 @@ export default class EVM {
 
   innerRemoveCallback(target, event, listener, options) {
 
+    const { isInWhiteList, isSameOptions } = this.options;
+    if (!isInWhiteList(target, event, listener, options)) {
+      return;
+    }
+
     const argList = [target, event, listener, options];
     if (!isFunction(listener)) {
       return console.warn("EVM::innerAddCallback listener must be a function");
