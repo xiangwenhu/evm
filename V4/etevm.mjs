@@ -1,10 +1,14 @@
 
 import BaseEvm from "./baseEvm.mjs";
-import { createApplyHanlder, createRevocableProxy, delay, isFunction } from "./util.mjs";
+import { createApplyHanlder, createRevocableProxy, delay, isFunction, boolenTrue } from "./util.mjs";
 
 const toString = Object.prototype.toString
 
-export default class EEVM extends BaseEvm {
+const DEFAULT_OPTIONS = {
+  isInWhiteList: boolenTrue
+}
+
+export default class ETEVM extends BaseEvm {
 
   #watched = false;
   #orgEventTargetPro;
@@ -12,10 +16,17 @@ export default class EEVM extends BaseEvm {
   #rvRemove;
   #ep;
 
-  constructor(options) {
-    super(options);
+  constructor(prototype, options = {}) {
+    super({
+      ...DEFAULT_OPTIONS,
+      ...options
+    });
+
+    if (!prototype) {
+      throw new Error("param prototype is required")
+    }
     this.#orgEventTargetPro = { ...EventTarget.prototype };
-    this.#ep = EventTarget.prototype;
+    this.#ep = prototype;
   }
 
   watch() {
@@ -26,11 +37,11 @@ export default class EEVM extends BaseEvm {
 
     this.#watched = true;
 
-    this.#rvAdd = createRevocableProxy(this.#ep.addEventListener,
+    this.#rvAdd = createRevocableProxy(this.#ep.addListener,
       createApplyHanlder(this.innerAddCallback));
     this.#ep.addEventListener = this.#rvAdd.proxy;
 
-    this.#rvRemove = createRevocableProxy(this.#ep.removeEventListener,
+    this.#rvRemove = createRevocableProxy(this.#ep.removeListener,
       createApplyHanlder(this.innerRemoveCallback));
     this.#ep.removeEventListener = this.#rvRemove.proxy;
 

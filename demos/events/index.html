@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+
+    <script type="module">
+        import ETEVM from "http://192.168.13.96:8080/V4/etevm.mjs";
+        import Emitter from "./events.mjs";
+
+        const evm = new ETEVM(Emitter.prototype)
+        evm.watch();
+
+        const emitter = new Emitter();
+
+        function onMessage(msg) {
+            console.log("message received:", msg)
+        }
+        emitter.addListener("message", onMessage);
+        // emitter.addListener("message", onMessage);
+
+        console.log("on === addListener",  emitter.addListener === emitter.on )
+
+        emitter.emit("message", "msg")
+        setInterval(async function () {
+            // console.log("-------");
+            const data = await evm.statistics();
+            console.log("statistics:", data);
+        }, 3000)
+
+    </script>
+</body>
+
+</html>

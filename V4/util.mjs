@@ -64,6 +64,10 @@ export function boolenFalse() {
     return false;
 }
 
+export function boolenTrue() {
+    return true;
+}
+
 
 /**
  * 忽略 signal属性 https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/addEventListener
