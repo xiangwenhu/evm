@@ -13,9 +13,16 @@ export function hasOwnProperty(obj, property) {
  * 创建纯净对象
  * @returns 
  */
-export function createPureObject() {
-    return Object.create(null);
+export function createPureObject(obj = undefined) {
+
+    const pObj = Object.create(null);
+    if(!isObject(obj)){
+        return pObj;
+    }
+
+    return Object.assign(pObj, obj)
 }
+
 
 /**
  * 创建可取消的代理

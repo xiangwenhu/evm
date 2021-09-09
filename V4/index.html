@@ -12,9 +12,9 @@
   <button id="btn" type="button">点我</button>
 
   <script type="module">
-    import EVM from "./eevm.mjs";
+    import EVM from "./etevm.mjs";
 
-    const evm = new EVM({
+    const evm = new EVM(undefined, {
       isInWhiteList(target) {
         return target === window || target.id
       }
@@ -33,23 +33,25 @@
     window.evm = evm;
     document.getElementById("btn").addEventListener("click", clickFn);
 
-    setTimeout(function () {
-      console.log("remove click 5000")
-      document.getElementById("btn").removeEventListener("click", clickFn)
-    }, 5000)
+    // setTimeout(function () {
+    //   console.log("remove click 5000")
+    //   document.getElementById("btn").removeEventListener("click", clickFn)
+    // }, 5000)
 
-    setTimeout(function () {
-      console.log("remove click 13000")
-      document.getElementById("btn").removeEventListener("click", clickFn)
-    }, 13000)
+    // setTimeout(function () {
+    //   console.log("remove click 13000")
+    //   document.getElementById("btn").removeEventListener("click", clickFn)
+    // }, 13000)
 
-    setInterval(async function () {
+    setTimeout(async function () {
       // console.log("-------");
-      const data = await evm.statistics();
+      const data = await evm.getExtremelyItems();
       console.log("statistics:", data);
     }, 3000)
 
     function onResize() { }
+
+    window.addEventListener("resize", onResize);
 
     window.addEventListener("resize", onResize);
 

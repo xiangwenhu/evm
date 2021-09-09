@@ -2,7 +2,7 @@
 import BaseEvm from "./baseEvm.mjs";
 import {
   createApplyHanlder, createRevocableProxy, delay, isFunction, boolenTrue, hasOwnProperty,
-  isObject
+  isObject, createPureObject
 } from "./util.mjs";
 
 const toString = Object.prototype.toString
@@ -42,12 +42,12 @@ export default class ETEVM extends BaseEvm {
     return listener;
   }
 
-  #innerAddCallback = (target, event, listener) => {
-    return super.innerAddCallback(target, event, this.#getListenr(listener));
+  #innerAddCallback = (target, event, listener, options) => {
+    return super.innerAddCallback(target, event, this.#getListenr(listener), options);
   }
 
-  #innerRemoveCallback = (target, event, listener) => {
-    return super.innerRemoveCallback(target, event, this.#getListenr(listener));
+  #innerRemoveCallback = (target, event, listener, options) => {
+    return super.innerRemoveCallback(target, event, this.#getListenr(listener), options);
   }
 
   #createFunProxy(oriFun, callback) {
@@ -136,8 +136,7 @@ export default class ETEVM extends BaseEvm {
     this.#watched = false
   }
 
-  async statistics() {
-
+  async #gc() {
     if (isFunction(window.gc)) {
       window.gc();
     }
@@ -145,6 +144,11 @@ export default class ETEVM extends BaseEvm {
     const { run } = delay(undefined, 1000);
 
     await run();
+  }
+
+  async statistics() {
+
+    await this.#gc();
 
     const data = this.data;
     const keys = [...data.keys()];
@@ -169,6 +173,65 @@ export default class ETEVM extends BaseEvm {
     })
 
     return d;
+  }
+
+  #getExtremelyListeners(eventsInfo = []) {
+    const map = new Map();
+    let listener, listenerStr, listenerKeyStr;
+    let info;
+    for (let i = 0; i < eventsInfo.length; i++) {
+      info = 0;
+      const eInfo = eventsInfo[i];
+      listener = eInfo.listener.deref();
+      // 被回收了
+      if (!listener) {
+        continue;
+      }
+      // 函数 + options
+      listenerStr = listener.toString();
+      listenerKeyStr = listenerStr + ` %s----%s ${eInfo.options}`
+      info = map.get(listenerKeyStr);
+      if (!info) {
+        map.set(listenerKeyStr, {
+          listener: listenerStr,
+          count: 1,
+          options: eInfo.options
+        })
+      } else {
+        info.count++
+      }
+    }
+
+    return [...map.values()].filter(v => v.count > 1);
+  }
+
+  async getExtremelyItems() {
+
+    await this.#gc();
+
+    const data = this.data;
+    const keys = [...data.keys()];
+
+    const d = keys.map(wr => {
+      const el = wr.deref();
+      if (!el) return null;
+
+      const eventsObj = data.get(wr);
+      const events = Object.keys(eventsObj).reduce((obj, cur) => {
+        obj[cur] = this.#getExtremelyListeners(eventsObj[cur]);
+        return obj
+      }, Object.create(null));
+
+      return Object.keys(events).length > 0 ? createPureObject({
+        type: toString.call(el),
+        id: el.id,
+        class: el.className,
+        events
+      }) : null
+    }).filter(Boolean)
+
+    return d;
+
   }
 
 }
