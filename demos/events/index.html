@@ -18,7 +18,12 @@
         const evm = new ETEVM(Emitter.prototype)
         evm.watch();
 
-        const emitter = new Emitter();
+        var emitter = new Emitter();
+
+        // window.evm = evm;
+
+        // 没有这句， emitter会被回收
+        window.emitter = emitter;
 
         function onMessage(msg) {
             console.log("message received:", msg)
@@ -31,14 +36,14 @@
             console.log("once add error",e)
         }
 
-        // emitter.off("message", onMessage);
+        emitter.off("message", onMessage);
 
         console.log("on === addListener",  emitter.addListener === emitter.on )
 
         // emitter.emit("message", "msg")
         setInterval(async function () {
             // console.log("-------");
-            const data = await evm.statistics();
+            const data = await evm.getExtremelyItems();
             console.log("statistics:", data);
         }, 3000)
 
