@@ -21,7 +21,7 @@ export default class ETEVM extends BaseEvm {
   #rpList = [];
   #evPrototype;
 
-  constructor(prototype = EventTarget.prototype, options = {}) {
+  constructor(options = {}, prototype = EventTarget.prototype) {
     super({
       ...DEFAULT_OPTIONS,
       ...options
@@ -211,14 +211,17 @@ export default class ETEVM extends BaseEvm {
 
     const data = this.data;
     const keys = [...data.keys()];
-
+    let exItems;
     const d = keys.map(wr => {
       const el = wr.deref();
       if (!el) return null;
 
       const eventsObj = data.get(wr);
       const events = Object.keys(eventsObj).reduce((obj, cur) => {
-        obj[cur] = this.#getExtremelyListeners(eventsObj[cur]);
+        exItems = this.#getExtremelyListeners(eventsObj[cur]);
+        if (exItems.length > 0) {
+          obj[cur] = exItems;
+        }
         return obj
       }, Object.create(null));
 

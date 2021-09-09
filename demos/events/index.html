@@ -15,7 +15,7 @@
         import ETEVM from "http://192.168.13.96:8080/V4/etevm.mjs";
         import Emitter from "./events.mjs";
 
-        const evm = new ETEVM(Emitter.prototype)
+        const evm = new ETEVM(undefined, Emitter.prototype)
         evm.watch();
 
         var emitter = new Emitter();
@@ -30,15 +30,15 @@
         }
         emitter.on("message", onMessage);
         emitter.on("message", onMessage);
-        try{
-        emitter.once("message", onMessage);
-        }catch(e){
-            console.log("once add error",e)
+        try {
+            emitter.once("message", onMessage);
+        } catch (e) {
+            console.log("once add error", e)
         }
 
         emitter.off("message", onMessage);
 
-        console.log("on === addListener",  emitter.addListener === emitter.on )
+        console.log("on === addListener", emitter.addListener === emitter.on)
 
         // emitter.emit("message", "msg")
         setInterval(async function () {

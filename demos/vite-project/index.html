@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vite App</title>
+</head>
+
+<body>
+  <script type="module">
+    import EVM from "http://192.168.13.96:8080/V4/etevm.mjs";
+
+    const wp = new WeakMap();
+    const evm = new EVM({
+      isInWhiteList(target, event, listener, options) {
+        if (target === window && event === "error") {
+          return false;
+        }
+
+        if (target.id === "btn1" || [window, document].includes(target)) {
+          return true
+        }
+        return false;
+      }
+    });
+    evm.watch();
+
+    setInterval(async function () {
+      // console.log("-------");
+      const data = await evm.getExtremelyItems();
+      console.log("statistics:", data);
+    }, 3000)
+
+
+    window.__evm_ready__ = true;
+    window.__evm__ = evm;
+  </script>
+  <div id="app"></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
