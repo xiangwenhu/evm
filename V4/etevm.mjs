@@ -1,6 +1,9 @@
 
 import BaseEvm from "./baseEvm.mjs";
-import { createApplyHanlder, createRevocableProxy, delay, isFunction, boolenTrue } from "./util.mjs";
+import {
+  createApplyHanlder, createRevocableProxy, delay, isFunction, boolenTrue, hasOwnProperty,
+  isObject
+} from "./util.mjs";
 
 const toString = Object.prototype.toString
 
@@ -8,25 +11,103 @@ const DEFAULT_OPTIONS = {
   isInWhiteList: boolenTrue
 }
 
+const ADD_PROPERTIES = ["addListener", "addEventListener", "on", "prependListener"];
+const REMOVE_PROPERTIES = ["removeListener", "removeEventListener", "off"];
+
 export default class ETEVM extends BaseEvm {
 
   #watched = false;
-  #orgEventTargetPro;
-  #rvAdd;
-  #rvRemove;
-  #ep;
+  #orgEvPrototype;
+  #rpList = [];
+  #evPrototype;
 
-  constructor(prototype, options = {}) {
+  constructor(prototype = EventTarget.prototype, options = {}) {
     super({
       ...DEFAULT_OPTIONS,
       ...options
     });
 
-    if (!prototype) {
-      throw new Error("param prototype is required")
+    if (!isObject(prototype)) {
+      throw new Error("参数prototype必须是一个有效的对象")
     }
-    this.#orgEventTargetPro = { ...EventTarget.prototype };
-    this.#ep = prototype;
+    this.#orgEvPrototype = { ...prototype };
+    this.#evPrototype = prototype;
+
+  }
+
+  #getListenr(listener) {
+    if (isFunction(listener.listener)) {
+      return listener.listener
+    }
+    return listener;
+  }
+
+  #innerAddCallback = (target, event, listener) => {
+    return super.innerAddCallback(target, event, this.#getListenr(listener));
+  }
+
+  #innerRemoveCallback = (target, event, listener) => {
+    return super.innerRemoveCallback(target, event, this.#getListenr(listener));
+  }
+
+  #createFunProxy(oriFun, callback) {
+    if (!isFunction(oriFun)) {
+      return console.log("createFunProxy:: oriFun should be a function");
+    }
+
+    const rProxy = createRevocableProxy(oriFun,
+      createApplyHanlder(callback));
+
+    return rProxy;
+  }
+
+  #checkAndProxy(ckProperties, callback, proxyProperties = ckProperties) {
+    let fn;
+    const ep = this.#evPrototype;
+
+    // 检查方法
+    for (let i = 0; i < ckProperties.length; i++) {
+      if (!hasOwnProperty(ep, ckProperties[i])) {
+        continue;
+      }
+      fn = this.#evPrototype[ckProperties[i]];
+      if (isFunction(fn)) {
+        break;
+      }
+
+    }
+
+    if (!isFunction(fn)) {
+      return false;
+    }
+
+    const rpProxy = this.#createFunProxy(fn, callback);
+    if (!rpProxy) {
+      return false;
+    }
+
+    // 替换方法
+    proxyProperties.forEach(pname => {
+      if (hasOwnProperty(ep, pname) && isFunction(this.#evPrototype[pname])) {
+        this.#evPrototype[pname] = rpProxy.proxy
+      }
+    })
+    // 收集
+    this.#rpList.push(rpProxy);
+  }
+
+  #restoreProperties() {
+    ADD_PROPERTIES.forEach(pname => {
+      if (hasOwnProperty(ep, pname) && isFunction(this.#evPrototype[pname])) {
+        this.#evPrototype[pname] = this.#orgEvPrototype[pname]
+      }
+    })
+
+    REMOVE_PROPERTIES.forEach(pname => {
+      if (hasOwnProperty(ep, pname) && isFunction(this.#evPrototype[pname])) {
+        this.#evPrototype[pname] = this.#orgEvPrototype[pname]
+      }
+    })
   }
 
   watch() {
@@ -37,27 +118,21 @@ export default class ETEVM extends BaseEvm {
 
     this.#watched = true;
 
-    this.#rvAdd = createRevocableProxy(this.#ep.addListener,
-      createApplyHanlder(this.innerAddCallback));
-    this.#ep.on = this.#ep.addListener = this.#rvAdd.proxy;
+    // addListener addEventListener on prependListener
+    this.#checkAndProxy(ADD_PROPERTIES, this.#innerAddCallback);
 
-    this.#rvRemove = createRevocableProxy(this.#ep.removeListener,
-      createApplyHanlder(this.innerRemoveCallback));
-    this.#ep.off = this.#ep.removeListener = this.#rvRemove.proxy;
+    // removeListener removeEventListener off
+    this.#checkAndProxy(REMOVE_PROPERTIES, this.#innerRemoveCallback);
 
     return () => this.cancelWatch();
   }
 
   cancelWatch() {
-    if (this.#rvAdd) {
-      this.#rvAdd.revoke();
-    }
-    this.#ep.on = this.#ep.addListener = this.#orgEventTargetPro.addListener;
 
-    if (this.#rvRemove) {
-      this.#rvRemove.revoke();
-    }
-    this.#ep.off = this.#ep.removeListener = this.#orgEventTargetPro.removeListener;
+    this.#restoreProperties();
+    this.#rpList.forEach(rp => rp.revoke());
+    this.#rpList = [];
+
     this.#watched = false
   }
 

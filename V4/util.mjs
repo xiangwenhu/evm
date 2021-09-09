@@ -1,3 +1,13 @@
+const hasOwnP = Object.prototype.hasOwnProperty;
+
+
+export function hasOwnProperty(obj, property) {
+    if (!isObject(obj)) {
+        return false;
+    }
+    return hasOwnP.call(obj, property);
+}
+
 
 /**
  * 创建纯净对象
@@ -35,6 +45,10 @@ export function createApplyHanlder(callback) {
 
 export function isFunction(fn) {
     return typeof fn === 'function'
+}
+
+export function isObject(obj){
+    return typeof obj === "object"
 }
 
 export function isSameStringifyObject(obj1, obj2) {

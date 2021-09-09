@@ -2,13 +2,21 @@
 
 ## nodejs 的 events
 
-1. once
-   once底层肯定是调用on(addListener)， 如果避免监听
-2. removeAllListeners
+
+events其实支持了`newListener`和`removeListener`的监听事件。
+* newListener 有事件添加时触发
+* removeListener 有事件移除时触发
+
+
+- [x] once底层肯定是调用on(addListener)， 如果避免监听
+    once可以监听，其底层依旧会调用removeListner,只不过我们需要监听的真实被调用函数
+
+- [ ] removeAllListeners
 其可能不走挨个删除，所以必须监听此事件。
 
-3. prependListener 并未走原型 addListener
+- [ ] prependListener 并未走原型 addListener
 需要代理
+
 
 
 ## socket.io
