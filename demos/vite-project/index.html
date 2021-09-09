@@ -37,6 +37,20 @@
     window.__evm_ready__ = true;
     window.__evm__ = evm;
   </script>
+  <div>
+    <button type="button" id="btnX">点我啊</button>
+    <script type="text/javascript">
+      function log() {
+        console.log("log btnX clicked");
+      }
+
+      btnX.addEventListener("click", log);
+      btnX.addEventListener("click", log);
+      btnX.addEventListener("click", log);
+
+
+    </script>
+  </div>
   <div id="app"></div>
   <script type="module" src="/src/main.js"></script>
 </body>

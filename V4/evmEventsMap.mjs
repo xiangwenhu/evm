@@ -86,13 +86,13 @@ export default class EvmEventsMap {
                 return false;
             }
             return fun === listener && isSameStringifyObject(l.options, options)
-        });   
+        });
 
         if (index >= 0) {
             t[event].splice(index, 1);
         }
 
-        const hasItem = t[event].some(l=> l.listener.deref());
+        const hasItem = t[event].some(l => l.listener.deref());
         if (!hasItem) {
             delete t[event];
         }
@@ -171,7 +171,7 @@ export default class EvmEventsMap {
                 return false;
             }
             return l === listener && isSameStringifyObject(options, l.options)
-        })
+        }) > -1
 
     }
 
@@ -188,7 +188,6 @@ export default class EvmEventsMap {
         const items = listenerObjs.filter(l => isSameFunction(l.listener.deref(), listener, true) && isSameStringifyObject(l.options, options));
         return items;
     }
-
 
     get data() {
         return this.#map

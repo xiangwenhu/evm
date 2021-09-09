@@ -16,7 +16,7 @@
 
     const evm = new EVM({
       isInWhiteList(target) {
-        return target === window || target.id
+        return target === document.body || target.id
       }
     });
 
@@ -27,11 +27,12 @@
 
     evm.watch();
     document.getElementById("btn").addEventListener("click", clickFn);
-    document.getElementById("btn").addEventListener("click", clickFn, true);
-    document.getElementById("btn").addEventListener("click", clickFn, true);
+    document.getElementById("btn").addEventListener("click", clickFn);
+    // document.getElementById("btn").addEventListener("click", clickFn, true);
+    // document.getElementById("btn").addEventListener("click", clickFn, true);
 
     window.evm = evm;
-    document.getElementById("btn").addEventListener("click", clickFn);
+    // document.getElementById("btn").addEventListener("click", clickFn);
 
     // setTimeout(function () {
     //   console.log("remove click 5000")
@@ -49,15 +50,17 @@
       console.log("statistics:", data);
     }, 3000)
 
-    function onResize() { }
+    function onResize() {
+      console.log("resize")
+     }
 
-    window.addEventListener("resize", onResize);
+    // document.body.addEventListener("resize", onResize);
 
-    window.addEventListener("resize", onResize);
+    // document.body.addEventListener("resize", onResize);
 
-    setTimeout(function () {
-      window.removeEventListener("resize", onResize);
-    }, 5000)
+    // setTimeout(function () {
+    //   window.removeEventListener("resize", onResize);
+    // }, 5000)
   </script>
 </body>
 

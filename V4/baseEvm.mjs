@@ -1,7 +1,7 @@
 
 import EventEmitter from "../EventEmitter.mjs";
 import EvmEventsMap from "./evmEventsMap.mjs";
-import { boolenFalse, isFunction } from "./util.mjs";
+import { boolenFalse, isFunction, isObject } from "./util.mjs";
 
 
 const DEFAUL_OPTIONS = {
@@ -53,6 +53,12 @@ export default class EVM {
 
     if (!isFunction(listener)) {
       return console.warn("EVM::innerAddCallback listener must be a function");
+    }
+
+    // EventTarget  https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/addEventListener#multiple_identical_event_listeners
+    // 多次添加，覆盖
+    if (isObject(target) && target instanceof EventTarget && this.#eventsMap.hasListener(target, event, listener, options)) {
+      return console.log(`EventTarget 注册了多个相同的 EventListener， 多余的丢弃！${toString.call(target)} ${event} ${listener.name} 多余的丢弃`);
     }
 
     const eItems = this.#eventsMap.getExtremelyItems(...argList, isSameOptions);
