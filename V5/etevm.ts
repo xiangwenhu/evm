@@ -1,5 +1,6 @@
 
-import BaseEvm from "./BaseEvm2";
+import BaseEvm from "./BaseEvm";
+import { EVMBaseEventListner, ListenerLike, ListenerWrapper } from "./types";
 import {
   createApplyHanlder, createRevocableProxy, delay, isFunction, boolenTrue, hasOwnProperty,
   isObject, createPureObject
@@ -17,9 +18,12 @@ const REMOVE_PROPERTIES = ["removeListener", "removeEventListener", "off"];
 export default class ETEVM extends BaseEvm {
 
   #watched = false;
-  #orgEvPrototype;
-  #rpList = [];
-  #evPrototype;
+  #orgEvPrototype: any
+  #rpList: {
+    proxy: object;
+    revoke: () => void;
+  }[] = [];
+  #evPrototype: any;
 
   constructor(options = {}, prototype = EventTarget.prototype) {
     super({
@@ -35,22 +39,36 @@ export default class ETEVM extends BaseEvm {
 
   }
 
-  #getListenr(listener) {
-    if (isFunction(listener.listener)) {
+  #getListenr(listener: Function | ListenerWrapper) {
+
+    //?? isFunction
+    if (typeof listener == "function") {
+      return listener
+    }
+
+    if (isObject(listener) && isFunction(listener.listener)) {
       return listener.listener
     }
-    return listener;
+    return null;
   }
 
-  #innerAddCallback = (target, event, listener, options) => {
-    return super.innerAddCallback(target, event, this.#getListenr(listener), options);
+  #innerAddCallback: EVMBaseEventListner = (target, event, listener, options) => {
+    const fn = this.#getListenr(listener)
+    if (!isFunction(fn as Function)) {
+      return;
+    }
+    return super.innerAddCallback(target, event, fn as Function, options);
   }
 
-  #innerRemoveCallback = (target, event, listener, options) => {
-    return super.innerRemoveCallback(target, event, this.#getListenr(listener), options);
+  #innerRemoveCallback: EVMBaseEventListner = (target, event, listener, options) => {
+    const fn = this.#getListenr(listener)
+    if (!isFunction(fn as Function)) {
+      return;
+    }
+    return super.innerRemoveCallback(target, event, fn as Function, options);
   }
 
-  #createFunProxy(oriFun, callback) {
+  #createFunProxy(oriFun: Function, callback: Function) {
     if (!isFunction(oriFun)) {
       return console.log("createFunProxy:: oriFun should be a function");
     }
@@ -61,7 +79,7 @@ export default class ETEVM extends BaseEvm {
     return rProxy;
   }
 
-  #checkAndProxy(ckProperties, callback, proxyProperties = ckProperties) {
+  #checkAndProxy(ckProperties: string[], callback: Function, proxyProperties: string[] = ckProperties) {
     let fn;
     const ep = this.#evPrototype;
 
@@ -97,6 +115,8 @@ export default class ETEVM extends BaseEvm {
   }
 
   #restoreProperties() {
+    const ep = this.#evPrototype;
+
     ADD_PROPERTIES.forEach(pname => {
       if (hasOwnProperty(ep, pname) && isFunction(this.#evPrototype[pname])) {
         this.#evPrototype[pname] = this.#orgEvPrototype[pname]

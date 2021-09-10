@@ -1,5 +1,6 @@
+import { EventEmitterItem } from "./types";
 
-function isListener(listener) {
+function isListener(listener: unknown): boolean {
     if (typeof listener === 'function') {
         return true
     }
@@ -11,9 +12,9 @@ const pureObject = Object.create(null);
 
 export default class EventEmitter {
 
-    #events = pureObject;
+    #events: Record<string, EventEmitterItem[]> = pureObject;
 
-    #addListener(event, listener, once) {
+    #addListener(event: string, listener: Function, once: boolean) {
         if (!event || !listener) return false;
 
         if (!isListener(listener)) {
@@ -28,7 +29,7 @@ export default class EventEmitter {
         return true;
     }
 
-    #removeListener(event, listener) {
+    #removeListener(event: string, listener: Function) {
         const listeners = this.#events[event];
         if (!listeners) return false;
 
@@ -42,31 +43,31 @@ export default class EventEmitter {
         return false;
     }
 
-    on(event, listener) {
+    on(event: string, listener: Function) {
         this.#addListener(event, listener, false);
         return this;
     };
 
-    once(event, listener) {
+    once(event: string, listener: Function) {
         this.#addListener(event, listener, true);
         return this;
     };
 
-    off(event, listener) {
+    off(event: string, listener: Function) {
         this.#removeListener(event, listener);
         return this;
     };
 
-    offAll(eventName) {
-        if (eventName && this.#events[eventName]) {
-            this.#events[eventName] = []
+    offAll(event: string) {
+        if (event && this.#events[event]) {
+            this.#events[event] = []
         } else {
             this.#events = pureObject
         }
         return this;
     };
 
-    emit(event, ...args) {
+    emit(event: string, ...args: any[]) {
         const listeners = this.#events[event];
         if (!listeners) return;
 

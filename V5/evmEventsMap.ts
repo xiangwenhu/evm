@@ -174,7 +174,7 @@ export default class EvmEventsMap {
             if (!l) {
                 return false;
             }
-            return l === listener && isSameStringifyObject(options, l.options)
+            return l === listener && isSameStringifyObject(options, lobj.options)
         }) > -1
 
     }

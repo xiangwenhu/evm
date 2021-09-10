@@ -58,7 +58,7 @@ export function createApplyHanlder(callback: Function) {
     }
 }
 
-export function isFunction(fn: unknown): boolean {
+export function isFunction(fn: Function): boolean {
     return typeof fn === 'function'
 }
 

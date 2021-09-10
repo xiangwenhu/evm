@@ -2,13 +2,12 @@
 import EventEmitter from "./EventEmitter";
 import EvmEventsMap from "./evmEventsMap";
 import { boolenFalse, isFunction, isObject } from "./util";
+import { BaseEvmOptions, TypeListenerOptions } from "./types";
 
-
-const DEFAUL_OPTIONS = {
+const DEFAUL_OPTIONS: BaseEvmOptions = {
   /**
    * 选项相同判断函数
-   */
-  // isSameOptions: isSameStringifyObject,
+
   /**
    * 白名单判断函数
    */
@@ -19,8 +18,11 @@ const DEFAUL_OPTIONS = {
 const toString = Object.prototype.toString
 
 export default class EVM {
-  #emitter = new EventEmitter();
-  #eventsMap = new EvmEventsMap();
+  private emitter = new EventEmitter();
+  private eventsMap = new EvmEventsMap();
+
+  private options: BaseEvmOptions;
+
   constructor(options = {}) {
     this.options = {
       ...DEFAUL_OPTIONS,
@@ -31,20 +33,20 @@ export default class EVM {
     this.innerRemoveCallback = this.innerRemoveCallback.bind(this);
   }
 
-  #listenerRegistry = new FinalizationRegistry(
+  #listenerRegistry = new FinalizationRegistry<{ weakRefTarget: WeakRef<object> }>(
     ({ weakRefTarget }) => {
       console.log("clean up ------------------");
       if (!weakRefTarget) {
         return;
       }
-      this.#eventsMap.remove(weakRefTarget);
-      console.log("length", [...this.#eventsMap.data.keys()].length);
+      this.eventsMap.remove(weakRefTarget);
+      console.log("length", [...this.eventsMap.data.keys()].length);
     }
   )
 
-  innerAddCallback(target, event, listener, options) {
+  innerAddCallback(target: Object, event: string, listener: Function, options: TypeListenerOptions) {
 
-    const { isInWhiteList, isSameOptions } = this.options;
+    const { isInWhiteList } = this.options;
     const argList = [target, event, listener, options];
 
     if (!isInWhiteList(target, event, listener, options)) {
@@ -57,31 +59,31 @@ export default class EVM {
 
     // EventTarget  https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/addEventListener#multiple_identical_event_listeners
     // 多次添加，覆盖
-    if (isObject(target) && target instanceof EventTarget && this.#eventsMap.hasListener(target, event, listener, options)) {
+    if (isObject(target) && target instanceof EventTarget && this.eventsMap.hasListener(target, event, listener, options)) {
       return console.log(`EventTarget 注册了多个相同的 EventListener， 多余的丢弃！${toString.call(target)} ${event} ${listener.name} 多余的丢弃`);
     }
 
-    const eItems = this.#eventsMap.getExtremelyItems(...argList, isSameOptions);
+    const eItems = this.eventsMap.getExtremelyItems(...argList);
     if (Array.isArray(eItems) && eItems.length > 0) {
       console.warn(toString.call(target), " ExtremelyItems: type:", event, " name:" + listener.name, "options: " + options);
     }
 
     // console.log("add:", Object.prototype.toString.call(target), event);
 
-    if (!this.#eventsMap.hasByTarget(target)) {
+    if (!this.eventsMap.hasByTarget(target)) {
       let weakRefTarget = new WeakRef(target);
       argList[0] = weakRefTarget;
       this.#listenerRegistry.register(target, { weakRefTarget });
     }
 
-    this.#eventsMap.addListener(...argList);
+    this.eventsMap.addListener(...argList);
     // this.#emitter.emit("on-add", ...argList);
 
   }
 
-  innerRemoveCallback(target, event, listener, options) {
+  innerRemoveCallback(target: Object, event: string, listener: Function, options: TypeListenerOptions) {
 
-    const { isInWhiteList, isSameOptions } = this.options;
+    const { isInWhiteList } = this.options;
     if (!isInWhiteList(target, event, listener, options)) {
       return;
     }
@@ -91,55 +93,50 @@ export default class EVM {
       return console.warn("EVM::innerAddCallback listener must be a function");
     }
 
-    if (!this.#eventsMap.hasByTarget(target)) {
+    if (!this.eventsMap.hasByTarget(target)) {
       return;
     }
     // console.log("remove:", Object.prototype.toString.call(target), event);
 
-    this.#eventsMap.removeListener(...argList);
+    this.eventsMap.removeListener(...argList);
     // this.#emitter.emit("on-remove", ...argList)
   }
 
 
-  onAdd(fn) {
-    this.#emitter.on("on-add", fn)
+  onAdd(fn: Function): void {
+    this.emitter.on("on-add", fn)
   }
 
-  offAdd(fn) {
-    this.#emitter.off("on-add", fn)
+  offAdd(fn: Function) {
+    this.emitter.off("on-add", fn)
   }
 
-  onRemove(fn) {
-    this.#emitter.on("on-remove", fn)
+  onRemove(fn: Function) {
+    this.emitter.on("on-remove", fn)
   }
 
-  offRemove() {
-    this.#emitter.off("on-remove", fn)
+  offRemove(fn: Function) {
+    this.emitter.off("on-remove", fn)
   }
 
-  onAlarm(fn) {
-    this.#emitter.on("on-alarm", fn)
+  onAlarm(fn: Function) {
+    this.emitter.on("on-alarm", fn)
   }
 
-  offAlarm(fn) {
-    this.#emitter.off("on-alarm", fn)
+  offAlarm(fn: Function) {
+    this.emitter.off("on-alarm", fn)
   }
-
-  offAll() {
-    this.#emitter.offAll();
-  }
-
 
   watch() {
     throw new Error("not implemented")
   }
 
-  cancelWatch() {
+  ncelWatch() {
     throw new Error("not implemented")
   }
 
-  get data() {
-    return this.#eventsMap.data;
+  data() {
+    return this.eventsMap.data;
   }
 
   async statistics() {
