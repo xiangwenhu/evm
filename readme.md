@@ -13,7 +13,7 @@
     其继承于 EventTarget
 4. 原生的WebSocket
    其继承于 EventTarget
-5. nodejs标准库 [events](https://github.com/browserify/events)
+5. nodejs 标准的 [events](https://github.com/browserify/events)
 6. MQTT
    基于 [events](https://github.com/browserify/events)库
 7. `socket.io`
