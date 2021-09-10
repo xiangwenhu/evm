@@ -5,6 +5,22 @@
 ![](./images/demo.png)
 
 
+## 支持
+1. [EventTarget](https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget)
+2. DOM节点 + windwow + document
+    其继承于 EventTarget
+3. XMLHttpRequest
+    其继承于 EventTarget
+4. 原生的WebSocket
+   其继承于 EventTarget
+5. nodejs标准库 [events](https://github.com/browserify/events)
+6. MQTT
+   基于 [events](https://github.com/browserify/events)库
+7. `socket.io`
+   基于[component-emitter](https://www.npmjs.com/package/component-emitter)库
+
+
+
 ## 涉及的知识点
 
 1. DOM事件来源
@@ -26,7 +42,7 @@
 
 
 
-## 如何统计事件信息
+## DOM节点如何统计事件信息
 
 * **getEventListeners**
 https://github.com/colxi/getEventListeners 
