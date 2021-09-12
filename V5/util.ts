@@ -77,9 +77,9 @@ export function isSameStringifyObject(obj1: unknown, obj2: unknown) {
  * @param compareContent 
  * @returns 
  */
-export function isSameFunction(fn1: Function | undefined | null, fn2: Function | undefined | null,compareContent = false) {
+export function isSameFunction(fn1: Function | undefined | null, fn2: Function | undefined | null, compareContent = false) {
 
-    if(fn1 == undefined || fn2 == undefined){
+    if (fn1 == undefined || fn2 == undefined) {
         return false;
     }
 
@@ -134,9 +134,15 @@ export function copyListenerOption(option: TypeListenerOptions) {
  * @param context 
  * @returns 
  */
-export function delay(fn: Function = () => { }, delay: number = 5000, context: unknown = null) {
+export function delay(fn: Function = () => { }, delay: number = 5000, context: unknown = null): {
+    run: (...args: any[]) => Promise<any>,
+    cancel: () => void
+} {
     if (!isFunction(fn)) {
-        return Promise.resolve();
+        return {
+            run: () => Promise.resolve(),
+            cancel: () => { }
+        }
     }
     let ticket: number;
     let runned = false;

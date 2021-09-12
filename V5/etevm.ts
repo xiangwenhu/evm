@@ -157,7 +157,7 @@ export default class ETEVM extends BaseEvm {
   }
 
   async #gc() {
-    if (isFunction(window.gc)) {
+    if (window.gc && isFunction(window.gc)) {
       window.gc();
     }
 
