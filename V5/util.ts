@@ -168,3 +168,77 @@ export function delay(fn: Function = () => { }, delay: number = 5000, context: u
         }
     }
 }
+
+
+export function createFunProxy(oriFun: Function, callback: Function) {
+    if (!isFunction(oriFun)) {
+        return console.log("createFunProxy:: oriFun should be a function");
+    }
+
+    const rProxy = createRevocableProxy(oriFun,
+        createApplyHanlder(callback));
+
+    return rProxy;
+}
+
+
+
+/**
+ * 检查属性，并产生代理
+ * @param prototype 
+ * @param callback 
+ * @param ckProperties 
+ * @param proxyProperties 
+ * @returns 
+ */
+export function checkAndProxy(prototype: any, callback: Function, ckProperties: string[], proxyProperties: string[] = ckProperties) {
+    let fn;
+    const proto = prototype
+
+    // 检查方法
+    for (let i = 0; i < ckProperties.length; i++) {
+        if (!hasOwnProperty(proto, ckProperties[i])) {
+            continue;
+        }
+        fn = proto[ckProperties[i]];
+        if (isFunction(fn)) {
+            break;
+        }
+
+    }
+
+    if (!isFunction(fn)) {
+        return null;
+    }
+
+    const rpProxy = createFunProxy(fn, callback);
+    if (!rpProxy) {
+        return null;
+    }
+
+    // 替换方法
+    proxyProperties.forEach(pname => {
+        if (hasOwnProperty(proto, pname) && isFunction(proto[pname])) {
+            proto[pname] = rpProxy.proxy
+        }
+    })
+
+    return rpProxy;
+}
+
+/**
+ * 还原属性方法
+ * @param prototype 
+ * @param orPrototype 
+ * @param properties 
+ */
+export function restoreProperties(prototype: any, orPrototype: any, properties: string[]): void {
+    const proto = prototype;
+    const oriProto = orPrototype;
+
+    properties.forEach(pname => {
+        if (hasOwnProperty(proto, pname) && isFunction(proto[pname])) {
+            prototype[pname] = oriProto[pname]
+        }
+    })
+}

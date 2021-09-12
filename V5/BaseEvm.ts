@@ -1,7 +1,7 @@
 
 import EventEmitter from "./EventEmitter";
 import EvmEventsMap from "./EventsMap";
-import { boolenFalse, isFunction, isObject , createRevocableProxy, createApplyHanlder, hasOwnProperty} from "./util";
+import { boolenFalse, isFunction, isObject, createRevocableProxy, createApplyHanlder, hasOwnProperty, checkAndProxy, restoreProperties, createPureObject, delay } from "./util";
 import { BaseEvmOptions, TypeListenerOptions } from "./types";
 
 const DEFAUL_OPTIONS: BaseEvmOptions = {
@@ -18,6 +18,7 @@ const DEFAUL_OPTIONS: BaseEvmOptions = {
 const toString = Object.prototype.toString
 
 export default class EVM {
+  protected watched: boolean = false;
   private emitter = new EventEmitter();
   private eventsMap = new EvmEventsMap();
 
@@ -100,15 +101,121 @@ export default class EVM {
     // this.#emitter.emit("on-remove", ...argList)
   }
 
-  protected createFunProxy(oriFun: Function, callback: Function) {
-    if (!isFunction(oriFun)) {
-      return console.log("createFunProxy:: oriFun should be a function");
+
+  /**
+   * 检查属性，并产生代理
+   * @param prototype 
+   * @param callback 
+   * @param ckProperties 
+   * @param proxyProperties 
+   * @returns 
+   */
+  protected checkAndProxy = checkAndProxy;
+
+
+  /**
+   * 还原属性方法
+   */
+  protected restoreProperties = restoreProperties;
+
+  protected async gc() {
+    if (window.gc && isFunction(window.gc)) {
+      window.gc();
     }
 
-    const rProxy = createRevocableProxy(oriFun,
-      createApplyHanlder(callback));
+    const { run } = delay(undefined, 1000);
 
-    return rProxy;
+    await run();
+  }
+
+  async statistics() {
+
+    await this.gc();
+
+    const data = this.data;
+    const keys = [...data.keys()];
+    const d = keys.map(wr => {
+      const el = wr.deref();
+      if (!el) return null;
+
+      const events = data.get(wr);
+      return {
+        type: toString.call(el),
+        id: el.id,
+        class: el.className,
+        events: Object.keys(events).reduce((obj, cur) => {
+          obj[cur] = events[cur].map(e => {
+            const fn = e.listener.deref();
+            if (!fn) return null;
+            return fn.name;
+          }).filter(Boolean)
+          return obj
+        }, Object.create(null))
+      }
+    })
+
+    return d;
+  }
+
+  #getExtremelyListeners(eventsInfo = []) {
+    const map = new Map();
+    let listener, listenerStr, listenerKeyStr;
+    let info;
+    for (let i = 0; i < eventsInfo.length; i++) {
+      info = 0;
+      const eInfo = eventsInfo[i];
+      listener = eInfo.listener.deref();
+      // 被回收了
+      if (!listener) {
+        continue;
+      }
+      // 函数 + options
+      listenerStr = listener.toString();
+      listenerKeyStr = listenerStr + ` %s----%s ${eInfo.options}`
+      info = map.get(listenerKeyStr);
+      if (!info) {
+        map.set(listenerKeyStr, {
+          listener: listenerStr,
+          count: 1,
+          options: eInfo.options
+        })
+      } else {
+        info.count++
+      }
+    }
+
+    return [...map.values()].filter(v => v.count > 1);
+  }
+
+  async getExtremelyItems() {
+
+    await this.gc();
+
+    const data = this.data;
+    const keys = [...data.keys()];
+    let exItems;
+    const d = keys.map(wr => {
+      const el = wr.deref();
+      if (!el) return null;
+
+      const eventsObj = data.get(wr);
+      const events = Object.keys(eventsObj).reduce((obj, cur) => {
+        exItems = this.#getExtremelyListeners(eventsObj[cur]);
+        if (exItems.length > 0) {
+          obj[cur] = exItems;
+        }
+        return obj
+      }, Object.create(null));
+
+      return Object.keys(events).length > 0 ? createPureObject({
+        type: toString.call(el),
+        id: el.id,
+        class: el.className,
+        events
+      }) : null
+    }).filter(Boolean)
+
+    return d;
   }
 
 
@@ -137,19 +244,18 @@ export default class EVM {
   }
 
   watch() {
-    throw new Error("not implemented")
+    if (this.watched) {
+      return console.error("watched")
+    }
+    this.watched = true;
   }
 
   cancel() {
-    throw new Error("not implemented")
+    this.watched = false;
   }
 
   data() {
     return this.eventsMap.data;
-  }
-
-  async statistics() {
-    throw new Error("not implemented")
   }
 
 }

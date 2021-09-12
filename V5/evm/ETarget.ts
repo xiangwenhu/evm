@@ -1,5 +1,5 @@
-import IProvider from "./IProvider"; 
+import BaseEvm from "../BaseEvm"; 
 
-class ETarget implements IProvider{
+export default class ETargetEVM extends BaseEvm{
 
 }

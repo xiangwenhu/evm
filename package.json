@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "static": "http-server --cors ./"
+    "static": "http-server --cors ./",
+    "build": "tsc ./V5/index"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xiangwenhu/evm.git"
+    "url": "git+https://github.com/xiangwenhu/evm.git",
   },
   "author": "",
   "license": "ISC",
