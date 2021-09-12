@@ -1,8 +1,8 @@
 
 import BaseEvm from "./BaseEvm";
-import { EVMBaseEventListner, ListenerLike, ListenerWrapper } from "./types";
+import { EVMBaseEventListner, ListenerWrapper } from "./types";
 import {
-  createApplyHanlder, createRevocableProxy, delay, isFunction, boolenTrue, hasOwnProperty,
+   delay, isFunction, boolenTrue, hasOwnProperty,
   isObject, createPureObject
 } from "./util";
 
@@ -68,18 +68,8 @@ export default class ETEVM extends BaseEvm {
     return super.innerRemoveCallback(target, event, fn as Function, options);
   }
 
-  #createFunProxy(oriFun: Function, callback: Function) {
-    if (!isFunction(oriFun)) {
-      return console.log("createFunProxy:: oriFun should be a function");
-    }
 
-    const rProxy = createRevocableProxy(oriFun,
-      createApplyHanlder(callback));
-
-    return rProxy;
-  }
-
-  #checkAndProxy(ckProperties: string[], callback: Function, proxyProperties: string[] = ckProperties) {
+  protected checkAndProxy(ckProperties: string[], callback: Function, proxyProperties: string[] = ckProperties) {
     let fn;
     const ep = this.#evPrototype;
 
@@ -99,7 +89,7 @@ export default class ETEVM extends BaseEvm {
       return false;
     }
 
-    const rpProxy = this.#createFunProxy(fn, callback);
+    const rpProxy = this.createFunProxy(fn, callback);
     if (!rpProxy) {
       return false;
     }
@@ -139,20 +129,19 @@ export default class ETEVM extends BaseEvm {
     this.#watched = true;
 
     // addListener addEventListener on prependListener
-    this.#checkAndProxy(ADD_PROPERTIES, this.#innerAddCallback);
+    this.checkAndProxy(ADD_PROPERTIES, this.#innerAddCallback);
 
     // removeListener removeEventListener off
-    this.#checkAndProxy(REMOVE_PROPERTIES, this.#innerRemoveCallback);
+    this.checkAndProxy(REMOVE_PROPERTIES, this.#innerRemoveCallback);
 
-    return () => this.cancelWatch();
+    return () => this.cancel();
   }
 
-  cancelWatch() {
+  cancel() {
 
     this.#restoreProperties();
     this.#rpList.forEach(rp => rp.revoke());
     this.#rpList = [];
-
     this.#watched = false
   }
 

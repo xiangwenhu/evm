@@ -7,7 +7,7 @@ export default class EvmEventsMap {
 
     /**
      * 
-     * @param target  Node节点
+     * @param target 被弱引用的对象
      * @returns 
      */
     getKeyFromTarget(target: object) {
@@ -28,8 +28,8 @@ export default class EvmEventsMap {
 
     /**
      * 添加
-     * @param target Node节点或者 WeakRef(Node)
-     * @param event 事件类型，比如click, resize等
+     * @param target object或者 WeakRef(object)
+     * @param event 事件类型，比如message,click等
      * @param listener 事件处理程序
      */
     addListener(target: Object, event: string, listener: Function, options: TypeListenerOptions) {
@@ -60,11 +60,10 @@ export default class EvmEventsMap {
     }
 
     /**
-     * 删除
-     * @param target Node节点或者 WeakRef(Node)
-     * @param event 事件类型，比如click, resize等
+     * 添加
+     * @param target object或者 WeakRef(object)
+     * @param event 事件类型，比如message,click等
      * @param listener 事件处理程序
-     * @returns undefined
      */
     removeListener(target: Object, event: string, listener: Function, options: TypeListenerOptions) {
         const map = this.#map;
@@ -108,7 +107,7 @@ export default class EvmEventsMap {
 
     /**
      * 
-     * @param wrTarget WeakRef(Node)
+     * @param wrTarget WeakRef(object)
      * @returns 
      */
     remove(wrTarget: WeakRef<object>) {
@@ -117,7 +116,7 @@ export default class EvmEventsMap {
 
     /**
      * 
-     * @param target  Node
+     * @param target  object
      * @returns 
      */
     removeByTarget(target: object) {
@@ -129,8 +128,8 @@ export default class EvmEventsMap {
     }
 
     /**
-     * Node
-     * @param target Node节点
+     * 
+     * @param target  object
      * @returns 
      */
     hasByTarget(target: object) {
@@ -139,13 +138,18 @@ export default class EvmEventsMap {
 
     /**
      * 
-     * @param wrTarget WeakRef(Node)
+     * @param wrTarget WeakRef(object)
      * @returns 
      */
     has(wrTarget: WeakRef<object>) {
         return this.#map.has(wrTarget);
     }
 
+    /**
+     * 获取关联的事件信息信息
+     * @param target 
+     * @returns 
+     */
     getEventsObj(target: object) {
         let wrTarget = this.getKeyFromTarget(target);
         if (!wrTarget) {
@@ -156,6 +160,14 @@ export default class EvmEventsMap {
     }
 
 
+    /**
+     * 是有已经有listener
+     * @param target 
+     * @param event 
+     * @param listener 
+     * @param options 
+     * @returns 
+     */
     hasListener(target: Object, event: string, listener: Function, options: TypeListenerOptions) {
         let wrTarget = this.getKeyFromTarget(target);
         if (!wrTarget) {
@@ -179,6 +191,14 @@ export default class EvmEventsMap {
 
     }
 
+    /**
+     * 获取极可能是有问题的事件监听信息
+     * @param target 
+     * @param event 
+     * @param listener 
+     * @param options 
+     * @returns 
+     */
     getExtremelyItems(target: Object, event: string, listener: Function, options: TypeListenerOptions) {
 
         const eventsObj = this.getEventsObj(target);

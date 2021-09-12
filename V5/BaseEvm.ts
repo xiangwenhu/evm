@@ -1,7 +1,7 @@
 
 import EventEmitter from "./EventEmitter";
 import EvmEventsMap from "./EventsMap";
-import { boolenFalse, isFunction, isObject } from "./util";
+import { boolenFalse, isFunction, isObject , createRevocableProxy, createApplyHanlder, hasOwnProperty} from "./util";
 import { BaseEvmOptions, TypeListenerOptions } from "./types";
 
 const DEFAUL_OPTIONS: BaseEvmOptions = {
@@ -47,7 +47,6 @@ export default class EVM {
   innerAddCallback(target: Object, event: string, listener: Function, options: TypeListenerOptions) {
 
     const { isInWhiteList } = this.options;
-    const argList = [target, event, listener, options];
 
     if (!isInWhiteList(target, event, listener, options)) {
       return;
@@ -101,6 +100,17 @@ export default class EVM {
     // this.#emitter.emit("on-remove", ...argList)
   }
 
+  protected createFunProxy(oriFun: Function, callback: Function) {
+    if (!isFunction(oriFun)) {
+      return console.log("createFunProxy:: oriFun should be a function");
+    }
+
+    const rProxy = createRevocableProxy(oriFun,
+      createApplyHanlder(callback));
+
+    return rProxy;
+  }
+
 
   onAdd(fn: Function): void {
     this.emitter.on("on-add", fn)
@@ -130,7 +140,7 @@ export default class EVM {
     throw new Error("not implemented")
   }
 
-  ncelWatch() {
+  cancel() {
     throw new Error("not implemented")
   }
 
