@@ -68,9 +68,14 @@ export default class EventsEVM extends BaseEvm {
     let rp;
     // addListener addEventListener on prependListener
     rp = this.checkAndProxy(this.et.prototype, this.#innerAddCallback, ADD_PROPERTIES);
-
+    if (rp !== null) {
+        this.rpList.push(rp);
+    }
     // removeListener removeEventListener off
-    this.checkAndProxy(this.et.prototype, this.#innerRemoveCallback, REMOVE_PROPERTIES);
+    rp = this.checkAndProxy(this.et.prototype, this.#innerRemoveCallback, REMOVE_PROPERTIES);
+    if (rp !== null) {
+        this.rpList.push(rp);
+    }
 
     return () => this.cancel();
   }

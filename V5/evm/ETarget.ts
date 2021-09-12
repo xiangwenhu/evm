@@ -1,5 +1,84 @@
-import BaseEvm from "../BaseEvm"; 
+import BaseEvm from "../BaseEvm";
 
-export default class ETargetEVM extends BaseEvm{
+import { EVMBaseEventListner, ListenerWrapper } from "../types";
+import { boolenFalse, isFunction, isObject } from "../util";
 
+const DEFAULT_OPTIONS = {
+    isInWhiteList: boolenFalse
+}
+
+const ADD_PROPERTIES = ["addEventListener"];
+const REMOVE_PROPERTIES = ["removeEventListener"];
+
+export default class ETargetEVM extends BaseEvm {
+
+    protected orgEt: any;
+    protected rpList: {
+        proxy: object;
+        revoke: () => void;
+    }[] = [];
+    protected et: any;
+
+    constructor(options = {}, et: object) {
+        super({
+            ...DEFAULT_OPTIONS,
+            ...options
+        });
+
+        if (!isObject(et)) {
+            throw new Error("参数prototype必须是一个有效的对象")
+        }
+        this.orgEt = { ...et };
+        this.et = et;
+
+    }
+
+    #getListenr(listener: Function | ListenerWrapper) {
+        if (typeof listener == "function") {
+            return listener
+        }
+        return null;
+    }
+
+    #innerAddCallback: EVMBaseEventListner = (target, event, listener, options) => {
+        const fn = this.#getListenr(listener)
+        if (!isFunction(fn as Function)) {
+            return;
+        }
+        return super.innerAddCallback(target, event, fn as Function, options);
+    }
+
+    #innerRemoveCallback: EVMBaseEventListner = (target, event, listener, options) => {
+        const fn = this.#getListenr(listener)
+        if (!isFunction(fn as Function)) {
+            return;
+        }
+        return super.innerRemoveCallback(target, event, fn as Function, options);
+    }
+
+
+    watch() {
+        super.watch();
+        let rp;
+        // addEventListener 
+        rp = this.checkAndProxy(this.et.prototype, this.#innerAddCallback, ADD_PROPERTIES);
+        if (rp !== null) {
+            this.rpList.push(rp);
+        }
+        // removeEventListener
+        rp = this.checkAndProxy(this.et.prototype, this.#innerRemoveCallback, REMOVE_PROPERTIES);
+        if (rp !== null) {
+            this.rpList.push(rp);
+        }
+
+        return () => this.cancel();
+    }
+
+    cancel() {
+        super.cancel();
+        this.restoreProperties(this.et.prototype, this.orgEt.prototype, ADD_PROPERTIES);
+        this.restoreProperties(this.et.prototype, this.orgEt.prototype, REMOVE_PROPERTIES);
+        this.rpList.forEach(rp => rp.revoke());
+        this.rpList = [];
+    }
 }
