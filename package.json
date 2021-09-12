@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "static": "http-server --cors ./",
-    "build": "tsc ./V5/index"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
