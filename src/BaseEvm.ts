@@ -2,7 +2,7 @@
 import EventEmitter from "./EventEmitter";
 import EvmEventsMap from "./EventsMap";
 import { boolenFalse, isFunction, isObject, createRevocableProxy, createApplyHanlder, hasOwnProperty, checkAndProxy, restoreProperties, createPureObject, delay } from "./util";
-import { BaseEvmOptions, TypeListenerOptions } from "./types";
+import { BaseEvmOptions, EventsMapItem, TypeListenerOptions } from "./types";
 
 const DEFAUL_OPTIONS: BaseEvmOptions = {
   /**
@@ -139,10 +139,13 @@ export default class EVM {
       if (!el) return null;
 
       const events = data.get(wr);
+      if(!events){
+        return createPureObject();
+      }
       return {
         type: toString.call(el),
-        id: el.id,
-        class: el.className,
+        // id: el.id,
+        // class: el.className,
         events: Object.keys(events).reduce((obj, cur) => {
           obj[cur] = events[cur].map(e => {
             const fn = e.listener.deref();
@@ -157,7 +160,7 @@ export default class EVM {
     return d;
   }
 
-  #getExtremelyListeners(eventsInfo = []) {
+  #getExtremelyListeners(eventsInfo: EventsMapItem[] = []) {
     const map = new Map();
     let listener, listenerStr, listenerKeyStr;
     let info;
@@ -193,13 +196,18 @@ export default class EVM {
 
     const data = this.data;
     const keys = [...data.keys()];
-    let exItems;
     const d = keys.map(wr => {
       const el = wr.deref();
       if (!el) return null;
 
       const eventsObj = data.get(wr);
-      const events = Object.keys(eventsObj).reduce((obj, cur) => {
+
+      if (!eventsObj) {
+        return createPureObject();
+      }
+
+      let exItems: EventsMapItem[];
+      const events = Object.keys(eventsObj).reduce((obj, cur: string) => {
         exItems = this.#getExtremelyListeners(eventsObj[cur]);
         if (exItems.length > 0) {
           obj[cur] = exItems;
@@ -209,8 +217,8 @@ export default class EVM {
 
       return Object.keys(events).length > 0 ? createPureObject({
         type: toString.call(el),
-        id: el.id,
-        class: el.className,
+        // id: el.id,
+        // class: el.className,
         events
       }) : null
     }).filter(Boolean)
@@ -254,7 +262,7 @@ export default class EVM {
     this.watched = false;
   }
 
-  data() {
+  get data() {
     return this.eventsMap.data;
   }
 
