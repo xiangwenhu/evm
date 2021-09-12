@@ -1,6 +1,6 @@
 
 import EventEmitter from "./EventEmitter";
-import EvmEventsMap from "./evmEventsMap";
+import EvmEventsMap from "./EventsMap";
 import { boolenFalse, isFunction, isObject } from "./util";
 import { BaseEvmOptions, TypeListenerOptions } from "./types";
 
@@ -63,20 +63,20 @@ export default class EVM {
       return console.log(`EventTarget 注册了多个相同的 EventListener， 多余的丢弃！${toString.call(target)} ${event} ${listener.name} 多余的丢弃`);
     }
 
-    const eItems = this.eventsMap.getExtremelyItems(...argList);
+    const eItems = this.eventsMap.getExtremelyItems(target, event, listener, options);
     if (Array.isArray(eItems) && eItems.length > 0) {
       console.warn(toString.call(target), " ExtremelyItems: type:", event, " name:" + listener.name, "options: " + options);
     }
 
     // console.log("add:", Object.prototype.toString.call(target), event);
 
+    let weakRefTarget = new WeakRef(target);
     if (!this.eventsMap.hasByTarget(target)) {
-      let weakRefTarget = new WeakRef(target);
-      argList[0] = weakRefTarget;
+      weakRefTarget = new WeakRef(target);
       this.#listenerRegistry.register(target, { weakRefTarget });
     }
 
-    this.eventsMap.addListener(...argList);
+    this.eventsMap.addListener(weakRefTarget, event, listener, options);
     // this.#emitter.emit("on-add", ...argList);
 
   }
@@ -88,7 +88,6 @@ export default class EVM {
       return;
     }
 
-    const argList = [target, event, listener, options];
     if (!isFunction(listener)) {
       return console.warn("EVM::innerAddCallback listener must be a function");
     }
@@ -98,7 +97,7 @@ export default class EVM {
     }
     // console.log("remove:", Object.prototype.toString.call(target), event);
 
-    this.eventsMap.removeListener(...argList);
+    this.eventsMap.removeListener(target, event, listener, options);
     // this.#emitter.emit("on-remove", ...argList)
   }
 
