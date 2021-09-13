@@ -19,14 +19,14 @@ export default class EventsEVM extends BaseEvm {
   }[] = [];
   protected et: any;
 
-  constructor(options: BaseEvmOptions = {} = {}, et: object) {
+  constructor(options: BaseEvmOptions = {} = {}, et: any) {
     super({
       ...DEFAULT_OPTIONS,
       ...options
     });
 
-    if (!isObject(et)) {
-      throw new Error("参数prototype必须是一个有效的对象")
+    if (et == null || !isObject(et.prototype)) {
+      throw new Error("参数et的原型必须是一个有效的对象")
     }
     this.orgEt = { ...et };
     this.et = et;
@@ -69,12 +69,12 @@ export default class EventsEVM extends BaseEvm {
     // addListener addEventListener on prependListener
     rp = this.checkAndProxy(this.et.prototype, this.#innerAddCallback, ADD_PROPERTIES);
     if (rp !== null) {
-        this.rpList.push(rp);
+      this.rpList.push(rp);
     }
     // removeListener removeEventListener off
     rp = this.checkAndProxy(this.et.prototype, this.#innerRemoveCallback, REMOVE_PROPERTIES);
     if (rp !== null) {
-        this.rpList.push(rp);
+      this.rpList.push(rp);
     }
 
     return () => this.cancel();
