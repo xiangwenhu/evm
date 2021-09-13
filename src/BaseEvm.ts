@@ -1,7 +1,7 @@
 
 import EventEmitter from "./EventEmitter";
 import EvmEventsMap from "./EventsMap";
-import { boolenFalse, isFunction, isObject, createRevocableProxy, createApplyHanlder, hasOwnProperty, checkAndProxy, restoreProperties, createPureObject, delay, getFunctionContent } from "./util";
+import { boolenFalse, isFunction, isObject, createRevocableProxy, createApplyHanlder, hasOwnProperty, checkAndProxy, restoreProperties, createPureObject, delay, getFunctionContent, isBuiltinFunctionContent } from "./util";
 import { BaseEvmOptions, EventsMapItem, TypeListenerOptions } from "./types";
 
 const DEFAUL_OPTIONS: BaseEvmOptions = {
@@ -174,6 +174,9 @@ export default class EVM {
       }
       // 函数 + options
       listenerStr = getFunctionContent(listener)
+      if(isBuiltinFunctionContent(listenerStr)) {
+        continue;
+      }
       listenerKeyStr = listenerStr + ` %s----%s ${eInfo.options}`
       info = map.get(listenerKeyStr);
       if (!info) {

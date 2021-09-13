@@ -11,7 +11,7 @@ console.log("NODE_ENV", NODE_ENV);
 export default {
   input: "src/index.ts",
   output: {
-    name: "evm",
+    name: "EVM",
     file: "dist/evm.js",
     format: "umd",
   },

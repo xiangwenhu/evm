@@ -115,15 +115,20 @@ function isSameContentFunction(fn1: Function, fn2: Function) {
     return fn1Content == fn2Content;
 }
 
+const NATIVE_CODE_ANONYMOUS_FUN = "function () { [native code] }";
+const NATIVE_CODE_CON = `{ [native code] }`
+
 export function getFunctionContent(fn: Function){
     const content = fn.toString();
+    if(content == NATIVE_CODE_ANONYMOUS_FUN){
+        return NATIVE_CODE_ANONYMOUS_FUN.slice(11);
+    }
     const startIndex = `function ${fn.name}()`.length;
     return content.slice(startIndex)
 }
 
-const NATIVE_CODE = `{ [native code] }`
-function isBuiltinFunctionContent(content: string): boolean{  
-    return content == NATIVE_CODE;
+export function isBuiltinFunctionContent(content: string): boolean{  
+    return content.trim() == NATIVE_CODE_CON;
 }
 
 export function boolenFalse(): boolean {

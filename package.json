@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "static": "http-server --cors ./",
+    "static2": "http-server --cors ./dist",
     "build": "rollup -c",
     "ev": "vite ./demos/events/index.html"
   },
