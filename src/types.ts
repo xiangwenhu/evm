@@ -20,11 +20,11 @@ export interface EventEmitterItem {
 }
 
 export interface BaseEvmOptions {
-    isInWhiteList: EVMBaseEventListner<boolean>
+    isInWhiteList: EVMBaseEventListener<boolean>
 }
 
 
-export interface EVMBaseEventListner<T = void>{
+export interface EVMBaseEventListener<T = void>{
     (target: Object, event: string, listener: Function, options: TypeListenerOptions): T 
 }
 

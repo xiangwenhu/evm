@@ -126,11 +126,11 @@ function isBuiltinFunctionContent(content: string): boolean{
     return content == NATIVE_CODE;
 }
 
-export function boolenFalse(): false {
+export function boolenFalse(): boolean {
     return false;
 }
 
-export function boolenTrue(): true {
+export function boolenTrue(): boolean {
     return true;
 }
 

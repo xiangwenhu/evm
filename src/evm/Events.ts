@@ -1,6 +1,6 @@
 
 import BaseEvm from "../BaseEvm";
-import { BaseEvmOptions, EVMBaseEventListner, ListenerWrapper } from "../types";
+import { BaseEvmOptions, EVMBaseEventListener, ListenerWrapper } from "../types";
 import { boolenTrue, isFunction, isObject } from "../util";
 
 const DEFAULT_OPTIONS = {
@@ -46,7 +46,7 @@ export default class EventsEVM extends BaseEvm {
     return null;
   }
 
-  #innerAddCallback: EVMBaseEventListner = (target, event, listener, options) => {
+  #innerAddCallback: EVMBaseEventListener = (target, event, listener, options) => {
     const fn = this.#getListenr(listener)
     if (!isFunction(fn as Function)) {
       return;
@@ -54,7 +54,7 @@ export default class EventsEVM extends BaseEvm {
     return super.innerAddCallback(target, event, fn as Function, options);
   }
 
-  #innerRemoveCallback: EVMBaseEventListner = (target, event, listener, options) => {
+  #innerRemoveCallback: EVMBaseEventListener = (target, event, listener, options) => {
     const fn = this.#getListenr(listener)
     if (!isFunction(fn as Function)) {
       return;
