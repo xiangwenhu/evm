@@ -2,7 +2,14 @@
 ## 目标和初衷
 按需监听事件处理程序，并对重复添加进行预警，并统计你关心事件处理程序。
 
-![](./images/demo.png)
+
+EventTarget系列demo截图：
+
+![](./images/demo-et.png)
+
+events系列demo截图：
+
+![](./images/demo-events.png)
 
 
 ## 支持
