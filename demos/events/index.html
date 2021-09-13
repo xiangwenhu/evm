@@ -10,44 +10,11 @@
 
 <body>
 
-
-    <script type="module">
-        import ETEVM from "http://192.168.13.96:8080/V4/etevm.mjs";
-        import Emitter from "./events.mjs";
-
-        const evm = new ETEVM(undefined, Emitter.prototype)
-        evm.watch();
-
-        var emitter = new Emitter();
-
-        // window.evm = evm;
-
-        // 没有这句， emitter会被回收
-        window.emitter = emitter;
-
-        function onMessage(msg) {
-            console.log("message received:", msg)
-        }
-        emitter.on("message", onMessage);
-        emitter.on("message", onMessage);
-        try {
-            emitter.once("message", onMessage);
-        } catch (e) {
-            console.log("once add error", e)
-        }
-
-        emitter.off("message", onMessage);
-
-        console.log("on === addListener", emitter.addListener === emitter.on)
-
-        // emitter.emit("message", "msg")
-        setInterval(async function () {
-            // console.log("-------");
-            const data = await evm.getExtremelyItems();
-            console.log("statistics:", data);
-        }, 3000)
-
+    <button type="button" id="btn1">按钮</button>
+    <script type="text/javascript" src="./events.js"></script>
+    
     </script>
+    <script src="./index.ts"></script>
 </body>
 
 </html>

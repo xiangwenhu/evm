@@ -1,6 +1,6 @@
 
 import BaseEvm from "../BaseEvm";
-import { EVMBaseEventListner, ListenerWrapper } from "../types";
+import { BaseEvmOptions, EVMBaseEventListner, ListenerWrapper } from "../types";
 import { boolenTrue, isFunction, isObject } from "../util";
 
 const DEFAULT_OPTIONS = {
@@ -19,7 +19,7 @@ export default class EventsEVM extends BaseEvm {
   }[] = [];
   protected et: any;
 
-  constructor(options = {}, et: object) {
+  constructor(options: BaseEvmOptions = {} = {}, et: object) {
     super({
       ...DEFAULT_OPTIONS,
       ...options

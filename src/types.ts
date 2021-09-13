@@ -20,7 +20,7 @@ export interface EventEmitterItem {
 }
 
 export interface BaseEvmOptions {
-    isInWhiteList: EVMBaseEventListner<boolean>
+    isInWhiteList?: EVMBaseEventListner<boolean>
 }
 
 

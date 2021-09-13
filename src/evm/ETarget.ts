@@ -1,6 +1,6 @@
 import BaseEvm from "../BaseEvm";
 
-import { EVMBaseEventListner, ListenerWrapper } from "../types";
+import { BaseEvmOptions, EVMBaseEventListner, ListenerWrapper } from "../types";
 import { boolenFalse, isFunction, isObject } from "../util";
 
 const DEFAULT_OPTIONS = {
@@ -19,14 +19,14 @@ export default class ETargetEVM extends BaseEvm {
     }[] = [];
     protected et: any;
 
-    constructor(options = {}, et: object) {
+    constructor(options: BaseEvmOptions = {}, et: any = EventTarget) {
         super({
             ...DEFAULT_OPTIONS,
             ...options
         });
 
-        if (!isObject(et)) {
-            throw new Error("参数prototype必须是一个有效的对象")
+        if (et == null || !isObject(et.prototype)) {
+            throw new Error("参数et的原型必须是一个有效的对象")
         }
         this.orgEt = { ...et };
         this.et = et;

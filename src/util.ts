@@ -38,7 +38,7 @@ export function createPureObject(obj: unknown = undefined): object {
  * @param handler 
  * @returns 
  */
-export function createRevocableProxy(obj: object, handler: ) {
+export function createRevocableProxy(obj: object | Function, handler: Function) {
     return Proxy.revocable(obj, handler);
 }
 
