@@ -1,7 +1,7 @@
 
 import EventEmitter from "./EventEmitter";
 import EvmEventsMap from "./EventsMap";
-import { boolenFalse, isFunction, isObject, createRevocableProxy, createApplyHanlder, hasOwnProperty, checkAndProxy, restoreProperties, createPureObject, delay } from "./util";
+import { boolenFalse, isFunction, isObject, createRevocableProxy, createApplyHanlder, hasOwnProperty, checkAndProxy, restoreProperties, createPureObject, delay, getFunctionContent } from "./util";
 import { BaseEvmOptions, EventsMapItem, TypeListenerOptions } from "./types";
 
 const DEFAUL_OPTIONS: BaseEvmOptions = {
@@ -65,18 +65,18 @@ export default class EVM {
 
     const eItems = this.eventsMap.getExtremelyItems(target, event, listener, options);
     if (Array.isArray(eItems) && eItems.length > 0) {
-      console.warn(toString.call(target), " ExtremelyItems: type:", event, " name:" + listener.name, "options: " + options);
+      console.warn(toString.call(target), " ExtremelyItems: type:", event, " name:" + listener.name, " options: " + options, " content:" + listener.toString().slice(0, 100));
     }
 
     // console.log("add:", Object.prototype.toString.call(target), event);
 
-    let weakRefTarget = new WeakRef(target);
+    let weakRefTarget;
     if (!this.eventsMap.hasByTarget(target)) {
       weakRefTarget = new WeakRef(target);
       this.#listenerRegistry.register(target, { weakRefTarget });
     }
 
-    this.eventsMap.addListener(weakRefTarget, event, listener, options);
+    this.eventsMap.addListener(weakRefTarget ? weakRefTarget : target, event, listener, options);
     // this.#emitter.emit("on-add", ...argList);
 
   }
@@ -139,7 +139,7 @@ export default class EVM {
       if (!el) return null;
 
       const events = data.get(wr);
-      if(!events){
+      if (!events) {
         return createPureObject();
       }
       return {
@@ -173,12 +173,12 @@ export default class EVM {
         continue;
       }
       // 函数 + options
-      listenerStr = listener.toString();
+      listenerStr = getFunctionContent(listener)
       listenerKeyStr = listenerStr + ` %s----%s ${eInfo.options}`
       info = map.get(listenerKeyStr);
       if (!info) {
         map.set(listenerKeyStr, {
-          listener: listenerStr,
+          listener: listener.toString(),
           count: 1,
           options: eInfo.options
         })

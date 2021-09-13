@@ -91,15 +91,39 @@ export function isSameFunction(fn1: Function | undefined | null, fn2: Function |
         return false;
     }
 
-    if (fn1.name !== fn2.name) {
-        return false;
-    }
+    // if (fn1.name !== fn2.name) {
+    //     return false;
+    // }
 
     if (!compareContent) {
         return fn1 === fn2;
     }
 
-    return fn1 === fn2 || fn1.toString() === fn2.toString();
+    return fn1 === fn2 || isSameContentFunction(fn1, fn2);
+}
+
+function isSameContentFunction(fn1: Function, fn2: Function) {
+    if (!isFunction(fn1) || !isFunction(fn2)) {
+        return false;
+    }
+    const fn1Content = getFunctionContent(fn1);
+    const fn2Content = getFunctionContent(fn2);
+
+    if(isBuiltinFunctionContent(fn1Content) || isBuiltinFunctionContent(fn2Content)) {
+        return false;
+    }
+    return fn1Content == fn2Content;
+}
+
+export function getFunctionContent(fn: Function){
+    const content = fn.toString();
+    const startIndex = `function ${fn.name}()`.length;
+    return content.slice(startIndex)
+}
+
+const NATIVE_CODE = `{ [native code] }`
+function isBuiltinFunctionContent(content: string): boolean{  
+    return content == NATIVE_CODE;
 }
 
 export function boolenFalse(): false {

@@ -8,8 +8,8 @@ app.innerHTML = `
   <a href="https://vitejs.dev/guide/features.html" target="_blank">Documentation</a>
 `
 const evm = new ETargetEVM({
-  isInWhiteList(target: Object, event: string) {
-    return target === window
+  isInWhiteList(target: any, event: string) {
+    return target.id === "btn1"
   }
 });
 
@@ -23,7 +23,7 @@ setInterval(async function () {
   console.log("statistics:", data);
 }, 3000)
 
-const btn1El: HTMLButtonElement = document.getElementById("btn1");
+const btn1El: HTMLButtonElement = document.getElementById("btn1") as HTMLButtonElement;
 
 
 function onClick1(){
@@ -34,4 +34,6 @@ function onClick2(){
   console.log("onclick")
 }
 
-btn1El.addEventListener("cl")
+// 添加完全一样的内容，报警
+btn1El.addEventListener("click", onClick1);
+btn1El.addEventListener("click", onClick2);
