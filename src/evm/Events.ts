@@ -19,7 +19,7 @@ export default class EventsEVM extends BaseEvm {
   }[] = [];
   protected et: any;
 
-  constructor(options: BaseEvmOptions = {} = {}, et: any) {
+  constructor(options: BaseEvmOptions = DEFAULT_OPTIONS, et: any) {
     super({
       ...DEFAULT_OPTIONS,
       ...options
