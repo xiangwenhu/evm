@@ -1,7 +1,8 @@
 import { TypeListenerOptions } from "./types";
 
 const hasOwnP = Object.prototype.hasOwnProperty;
-
+const NATIVE_CODE_ANONYMOUS_FUN = "function () { [native code] }";
+const NATIVE_CODE_CON = `{ [native code] }`;
 
 /**
  * 是否有某属性
@@ -16,7 +17,6 @@ export function hasOwnProperty(obj: unknown, property: string): boolean {
     return hasOwnP.call(obj, property);
 }
 
-
 /**
  * 创建纯净对象
  * @returns 
@@ -30,7 +30,6 @@ export function createPureObject(obj: unknown = undefined): object {
 
     return Object.assign(pObj, obj)
 }
-
 
 /**
  * 创建可取消的代理
@@ -115,8 +114,7 @@ function isSameContentFunction(fn1: Function, fn2: Function) {
     return fn1Content == fn2Content;
 }
 
-const NATIVE_CODE_ANONYMOUS_FUN = "function () { [native code] }";
-const NATIVE_CODE_CON = `{ [native code] }`
+
 
 export function getFunctionContent(fn: Function){
     const content = fn.toString();
@@ -203,7 +201,6 @@ export function createFunProxy(oriFun: Function, callback: Function) {
     if (!isFunction(oriFun)) {
         return console.log("createFunProxy:: oriFun should be a function");
     }
-
     const rProxy = createRevocableProxy(oriFun,
         createApplyHanlder(callback));
 

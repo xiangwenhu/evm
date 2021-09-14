@@ -112,7 +112,6 @@ export default class EVM {
    */
   protected checkAndProxy = checkAndProxy;
 
-
   /**
    * 还原属性方法
    */
