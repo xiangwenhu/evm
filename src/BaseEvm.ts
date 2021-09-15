@@ -150,7 +150,7 @@ export default class EVM {
            const items = events[cur].map(e => {
             const fn = e.listener.deref();
             if (!fn) return null;
-            return fn.name;
+            return fn.name || "anonymous";
           }).filter(Boolean)
           
           if (items.length > 0) {
