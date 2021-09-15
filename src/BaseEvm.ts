@@ -36,7 +36,7 @@ export default class EVM {
 
   #listenerRegistry = new FinalizationRegistry<{ weakRefTarget: WeakRef<object> }>(
     ({ weakRefTarget }) => {
-      console.log("clean up ------------------");
+      console.log("evm::clean up ------------------");
       if (!weakRefTarget) {
         return;
       }
@@ -142,15 +142,21 @@ export default class EVM {
         return createPureObject();
       }
       return {
+        constructor: el?.constructor?.name,
         type: toString.call(el),
         // id: el.id,
         // class: el.className,
         events: Object.keys(events).reduce((obj, cur) => {
-          obj[cur] = events[cur].map(e => {
+           const items = events[cur].map(e => {
             const fn = e.listener.deref();
             if (!fn) return null;
             return fn.name;
           }).filter(Boolean)
+          
+          if (items.length > 0) {
+            obj[cur] = items;
+          }
+
           return obj
         }, Object.create(null))
       }
@@ -219,6 +225,7 @@ export default class EVM {
 
       return Object.keys(events).length > 0 ? createPureObject({
         type: toString.call(el),
+        constructor: el?.constructor?.name,
         // id: el.id,
         // class: el.className,
         events
