@@ -116,11 +116,17 @@ function isSameContentFunction(fn1: Function, fn2: Function) {
 
 
 
+/**
+ * 获取函数体
+ * @param fn 
+ * @returns 
+ */
 export function getFunctionContent(fn: Function){
     const content = fn.toString();
     if(content == NATIVE_CODE_ANONYMOUS_FUN){
         return NATIVE_CODE_ANONYMOUS_FUN.slice(11);
     }
+    // TODDO:: 特殊函数名处理
     const startIndex = `function ${fn.name}()`.length;
     return content.slice(startIndex)
 }
