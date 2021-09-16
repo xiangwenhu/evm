@@ -2,7 +2,7 @@
 import EventEmitter from "./EventEmitter";
 import EvmEventsMap from "./EventsMap";
 import { boolenFalse, isFunction, isObject, createRevocableProxy, createApplyHanlder, hasOwnProperty, checkAndProxy, restoreProperties, createPureObject, delay, getFunctionContent, isBuiltinFunctionContent } from "./util";
-import { BaseEvmOptions, EventsMapItem, TypeListenerOptions } from "./types";
+import { BaseEvmOptions, EventsMapItem, StatisticsOpitons, TypeListenerOptions } from "./types";
 
 const DEFAUL_OPTIONS: BaseEvmOptions = {
   /**
@@ -11,7 +11,8 @@ const DEFAUL_OPTIONS: BaseEvmOptions = {
   /**
    * 白名单判断函数
    */
-  isInWhiteList: boolenFalse
+  isInWhiteList: boolenFalse,
+  maxContentLength: 200
 }
 
 
@@ -127,7 +128,20 @@ export default class EVM {
     await run();
   }
 
-  async statistics() {
+  #getLlistenerContent(listener: Function) {
+    const { maxContentLength } = this.options;
+    return listener.toString().slice(0, maxContentLength)
+  }
+
+  #getListenerInfo(listener: Function, containsContent: boolean = false) {
+    const name = listener.name || "anonymous";
+    if (!containsContent) {
+      return name;
+    }
+    return createPureObject({ name, content: this.#getLlistenerContent(listener) }) as Record<string, any>;
+  }
+
+  async statistics({ containsContent = false }: StatisticsOpitons = {}) {
 
     await this.gc();
 
@@ -147,12 +161,12 @@ export default class EVM {
         // id: el.id,
         // class: el.className,
         events: Object.keys(events).reduce((obj, cur) => {
-           const items = events[cur].map(e => {
+          const items = events[cur].map(e => {
             const fn = e.listener.deref();
             if (!fn) return null;
-            return fn.name || "anonymous";
+            return this.#getListenerInfo(fn, containsContent);
           }).filter(Boolean)
-          
+
           if (items.length > 0) {
             obj[cur] = items;
           }
@@ -179,14 +193,14 @@ export default class EVM {
       }
       // 函数 + options
       listenerStr = getFunctionContent(listener)
-      if(isBuiltinFunctionContent(listenerStr)) {
+      if (isBuiltinFunctionContent(listenerStr)) {
         continue;
       }
       listenerKeyStr = listenerStr + ` %s----%s ${eInfo.options}`
       info = map.get(listenerKeyStr);
       if (!info) {
         map.set(listenerKeyStr, {
-          listener: listener.toString(),
+          ...(this.#getListenerInfo(listener, true) as Object),
           count: 1,
           options: eInfo.options
         })

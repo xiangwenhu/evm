@@ -20,7 +20,8 @@ export interface EventEmitterItem {
 }
 
 export interface BaseEvmOptions {
-    isInWhiteList: EVMBaseEventListener<boolean>
+    isInWhiteList: EVMBaseEventListener<boolean>,
+    maxContentLength?: number;
 }
 
 
@@ -32,3 +33,6 @@ export interface ListenerWrapper {
     listener: Function
 }
 
+export interface StatisticsOpitons{
+    containsContent?: boolean
+}
