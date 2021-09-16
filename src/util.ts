@@ -37,7 +37,7 @@ export function createPureObject(obj: unknown = undefined): object {
  * @param handler 
  * @returns 
  */
-export function createRevocableProxy(obj: object | Function, handler: Function) {
+export function createRevocableProxy(obj: object | Function, handler: any) {
     return Proxy.revocable(obj, handler);
 }
 
@@ -137,6 +137,11 @@ export function isBuiltinFunctionContent(content: string): boolean {
     return content.trim() == NATIVE_CODE_CON;
 }
 
+// https://stackoverflow.com/questions/35686850/determine-if-a-javascript-function-is-a-bound-function
+export function isBoundFunction(fn: Function): boolean {
+   return fn.name.startsWith('bound ') && !fn.hasOwnProperty('prototype'); 
+}
+
 export function boolenFalse(): boolean {
     return false;
 }
@@ -179,7 +184,7 @@ export function delay(fn: Function = () => { }, delay: number = 5000, context: u
             cancel: () => { }
         }
     }
-    let ticket: number;
+    let ticket: any;
     let runned = false;
     return {
         run(...args: any[]) {
@@ -207,7 +212,7 @@ export function delay(fn: Function = () => { }, delay: number = 5000, context: u
 
 export function createFunProxy(oriFun: Function, callback: Function) {
     if (!isFunction(oriFun)) {
-        return console.log("createFunProxy:: oriFun should be a function");
+         throw new Error("createFunProxy:: oriFun should be a function");
     }
     const rProxy = createRevocableProxy(oriFun,
         createApplyHanlder(callback));
