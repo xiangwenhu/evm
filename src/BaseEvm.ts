@@ -160,7 +160,7 @@ export default class EVM {
         type: toString.call(el),
         // id: el.id,
         // class: el.className,
-        events: Object.keys(events).reduce((obj, cur) => {
+        events: [...events.keys()].reduce((obj, cur) => {
           const items = events.get(cur)?.map(e => {
             const fn = e.listener.deref();
             if (!fn) return null;
@@ -168,11 +168,11 @@ export default class EVM {
           }).filter(Boolean)
 
           if (items && items.length > 0) {
-            obj[cur] = items;
+            obj.set(cur, items);
           }
 
           return obj
-        }, Object.create(null))
+        }, new Map())
       }
     })
 
@@ -229,13 +229,13 @@ export default class EVM {
       }
 
       let exItems: EventsMapItem[];
-      const events = Object.keys(eventsObj).reduce((obj, cur: string) => {
+      const events = [...eventsObj.keys()].reduce((obj, cur: EventType) => {
         exItems = this.#getExtremelyListeners(eventsObj.get(cur));
         if (exItems.length > 0) {
-          obj[cur] = exItems;
+          obj.set(cur, exItems);
         }
         return obj
-      }, Object.create(null));
+      }, new Map());
 
       return Object.keys(events).length > 0 ? createPureObject({
         type: toString.call(el),

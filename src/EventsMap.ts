@@ -46,7 +46,7 @@ export default class EvmEventsMap {
         }
         t = this.#map.get(wrTarget);
         if (!t) {
-            t = createPureObject() as Map<EventType, EventsMapItem[]>;
+            t = new Map<EventType, EventsMapItem[]>();
             map.set(wrTarget, t);
         }
 
