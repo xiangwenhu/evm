@@ -40,7 +40,7 @@ export default class ETargetEVM extends BaseEvm {
         return null;
     }
 
-    #innerAddCallback: EVMBaseEventListener = (target, event, listener, options) => {
+    #innerAddCallback: EVMBaseEventListener<void, string> = (target, event, listener, options) => {
         const fn = this.#getListenr(listener)
         if (!isFunction(fn as Function)) {
             return;
@@ -48,7 +48,7 @@ export default class ETargetEVM extends BaseEvm {
         return super.innerAddCallback(target, event, fn as Function, options);
     }
 
-    #innerRemoveCallback: EVMBaseEventListener = (target, event, listener, options) => {
+    #innerRemoveCallback: EVMBaseEventListener<void, string> = (target, event, listener, options) => {
         const fn = this.#getListenr(listener)
         if (!isFunction(fn as Function)) {
             return;

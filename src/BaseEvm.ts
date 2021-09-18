@@ -2,7 +2,7 @@
 import EventEmitter from "./EventEmitter";
 import EvmEventsMap from "./EventsMap";
 import { boolenFalse, isFunction, isObject, createRevocableProxy, createApplyHanlder, hasOwnProperty, checkAndProxy, restoreProperties, createPureObject, delay, getFunctionContent, isBuiltinFunctionContent } from "./util";
-import { BaseEvmOptions, EventsMapItem, StatisticsOpitons, TypeListenerOptions } from "./types";
+import { BaseEvmOptions, EventsMapItem, EventType, StatisticsOpitons, TypeListenerOptions } from "./types";
 
 const DEFAUL_OPTIONS: BaseEvmOptions = {
   /**
@@ -46,7 +46,7 @@ export default class EVM {
     }
   )
 
-  innerAddCallback(target: Object, event: string, listener: Function, options: TypeListenerOptions) {
+  innerAddCallback(target: Object, event: EventType, listener: Function, options: TypeListenerOptions) {
 
     const { isInWhiteList } = this.options;
 
@@ -82,7 +82,7 @@ export default class EVM {
 
   }
 
-  innerRemoveCallback(target: Object, event: string, listener: Function, options: TypeListenerOptions) {
+  innerRemoveCallback(target: Object, event: EventType, listener: Function, options: TypeListenerOptions) {
 
     const { isInWhiteList } = this.options;
     if (!isInWhiteList(target, event, listener, options)) {
@@ -161,13 +161,13 @@ export default class EVM {
         // id: el.id,
         // class: el.className,
         events: Object.keys(events).reduce((obj, cur) => {
-          const items = events[cur].map(e => {
+          const items = events.get(cur)?.map(e => {
             const fn = e.listener.deref();
             if (!fn) return null;
             return this.#getListenerInfo(fn, containsContent);
           }).filter(Boolean)
 
-          if (items.length > 0) {
+          if (items && items.length > 0) {
             obj[cur] = items;
           }
 
@@ -230,7 +230,7 @@ export default class EVM {
 
       let exItems: EventsMapItem[];
       const events = Object.keys(eventsObj).reduce((obj, cur: string) => {
-        exItems = this.#getExtremelyListeners(eventsObj[cur]);
+        exItems = this.#getExtremelyListeners(eventsObj.get(cur));
         if (exItems.length > 0) {
           obj[cur] = exItems;
         }

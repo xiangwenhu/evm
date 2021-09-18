@@ -25,14 +25,17 @@ export interface BaseEvmOptions {
 }
 
 
-export interface EVMBaseEventListener<T = void>{
-    (target: Object, event: string, listener: Function, options: TypeListenerOptions): T 
+export interface EVMBaseEventListener<R = void, ET = EventType> {
+    (target: Object, event: ET, listener: Function, options: TypeListenerOptions): R
 }
 
 export interface ListenerWrapper {
     listener: Function
 }
 
-export interface StatisticsOpitons{
+export interface StatisticsOpitons {
     containsContent?: boolean
 }
+
+
+export type EventType = string | Symbol | number;
