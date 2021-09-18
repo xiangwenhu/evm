@@ -11,10 +11,8 @@ function log(this: any) {
     console.log("name:", this.name);
 }
 
-// Function.prototype.bind = proxy.proxy as any;
-
 var oriBind = Function.prototype.bind;
-var SymbolOriBind = Symbol.for("oriBind");
+var SymbolOriBind = Symbol.for("__oriBind__");
 Function.prototype.bind = function () {
     var f = oriBind.apply(this as any, arguments as any);
     f[SymbolOriBind] = this;
@@ -23,7 +21,6 @@ Function.prototype.bind = function () {
 
 const boundLog: any = log.bind({ name: "哈哈" });
 console.log(boundLog[SymbolOriBind].toString());
-
 
 boundLog();
 
