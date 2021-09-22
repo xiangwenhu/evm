@@ -235,9 +235,11 @@ export default class EVM {
           obj.set(cur, exItems);
         }
         return obj
+
+        // 使用map而不适用Object，因为key可能是Symbol
       }, new Map());
 
-      return Object.keys(events).length > 0 ? createPureObject({
+      return [...events.keys()].length > 0 ? createPureObject({
         type: toString.call(el),
         constructor: el?.constructor?.name,
         // id: el.id,
