@@ -54,7 +54,7 @@ export default class EventsEVM extends BaseEvm<undefined> {
     return super.innerAddCallback(target, event, fn as Function, undefined);
   }
 
-  #innerRemoveCallback: EVMBaseEventListener = (target, event, listener, options) => {
+  #innerRemoveCallback: EVMBaseEventListener = (target, event, listener) => {
     const fn = this.#getListenr(listener)
     if (!isFunction(fn as Function)) {
       return;
