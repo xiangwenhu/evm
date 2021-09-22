@@ -30,7 +30,7 @@ g.toString() // chrome: function() { [native code] }
 - [ ] options相同判定
   只与`capture`参数有关
 
-- [ ] type 是Symbol, String
+- [x] type 是Symbol, String
 
 
 ## socket.io
