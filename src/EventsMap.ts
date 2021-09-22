@@ -1,7 +1,22 @@
-import { TypeListenerOptions, EventsMapItem, EventType } from "./types";
-import { createPureObject, isSameStringifyObject, copyListenerOption, isSameFunction } from "./util"
+import { EventsMapItem, EventType, EvmEventsMapOptions, ISameFunction, ISameOptions, TypeListenerOptions } from "./types";
+import { copyListenerOption, isSameFunction, isSameStringifyObject } from "./util";
+
+
+
+const DEFAULT_OPTIONS: EvmEventsMapOptions = {
+    isSameOptions: isSameStringifyObject,
+    isSameFunction,
+}
 
 export default class EvmEventsMap {
+
+    private isSameOptions: ISameOptions;
+    private isSameFunction: ISameFunction;
+    constructor(options: EvmEventsMapOptions = DEFAULT_OPTIONS) {
+        const opt = { ...DEFAULT_OPTIONS, ...options };
+        this.isSameOptions = opt.isSameOptions;
+        this.isSameFunction = opt.isSameFunction;
+    }
 
     #map = new Map<WeakRef<Object>, Map<EventType, EventsMapItem[]>>();
 
@@ -39,7 +54,6 @@ export default class EvmEventsMap {
         let t: Map<EventType, EventsMapItem[]> | undefined;
         // target 如果是 WeakRef, 直接使用
         let wrTarget = target instanceof WeakRef ? target : this.getKeyFromTarget(target);
-
 
         if (!wrTarget) {
             wrTarget = new WeakRef(target);
@@ -97,7 +111,7 @@ export default class EvmEventsMap {
             if (!fun) {
                 return false;
             }
-            return fun === listener && isSameStringifyObject(l.options, options)
+            return fun === listener && this.isSameOptions(l.options, options)
         });
 
         if (index >= 0) {
@@ -195,7 +209,7 @@ export default class EvmEventsMap {
             if (!l) {
                 return false;
             }
-            return l === listener && isSameStringifyObject(options, lobj.options)
+            return l === listener && this.isSameOptions(options, lobj.options)
         }) > -1
 
     }
@@ -218,7 +232,7 @@ export default class EvmEventsMap {
         if (!listenerObjs) {
             return null;
         }
-        const items = listenerObjs.filter(l => isSameFunction(l.listener.deref(), listener, true) && isSameStringifyObject(l.options, options));
+        const items = listenerObjs.filter(l => this.isSameFunction(l.listener.deref(), listener, true) && this.isSameOptions(l.options, options));
         return items;
     }
 

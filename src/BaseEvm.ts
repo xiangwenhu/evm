@@ -2,12 +2,13 @@
 import EventEmitter from "./EventEmitter";
 import EvmEventsMap from "./EventsMap";
 import { BaseEvmOptions, EventsMapItem, EventType, StatisticsOpitons, TypeListenerOptions } from "./types";
-import { boolenFalse, checkAndProxy, createPureObject, delay, getFunctionContent, isBuiltinFunctionContent, isFunction, isObject, restoreProperties } from "./util";
+import { boolenFalse, isSameStringifyObject, checkAndProxy, createPureObject, delay, getFunctionContent, isBuiltinFunctionContent, isFunction, isObject, restoreProperties } from "./util";
 
 const DEFAUL_OPTIONS: BaseEvmOptions = {
   /**
    * 选项相同判断函数
-
+  */
+  isSameOptions: isSameStringifyObject,
   /**
    * 白名单判断函数
    */
@@ -25,7 +26,7 @@ export default class EVM {
 
   private options: BaseEvmOptions;
 
-  constructor(options = {}) {
+  constructor(options: BaseEvmOptions = {}) {
     this.options = {
       ...DEFAUL_OPTIONS,
       ...options
@@ -50,7 +51,7 @@ export default class EVM {
 
     const { isInWhiteList } = this.options;
 
-    if (!isInWhiteList(target, event, listener, options)) {
+    if (!isInWhiteList!(target, event, listener, options)) {
       return;
     }
 
@@ -85,7 +86,7 @@ export default class EVM {
   innerRemoveCallback(target: Object, event: EventType, listener: Function, options: TypeListenerOptions) {
 
     const { isInWhiteList } = this.options;
-    if (!isInWhiteList(target, event, listener, options)) {
+    if (!isInWhiteList!(target, event, listener, options)) {
       return;
     }
 
