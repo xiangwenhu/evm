@@ -71,7 +71,7 @@ export default class EVM<O = any>{
 
     const eItems = this.eventsMap.getExtremelyItems(target, event, listener, options);
     if (Array.isArray(eItems) && eItems.length > 0) {
-      console.warn(toString.call(target), " ExtremelyItems: type:", event, " name:" + listener.name, " options: " + options, " content:" + listener.toString().slice(0, 100));
+      console.warn( `${toString.call(target)}-${target.constructor.name}`, " ExtremelyItems: type:", event, " name:" + (listener.name || "anonymous") , " options: " + options, " content:" + listener.toString().slice(0, 100));
     }
 
     // console.log("add:", Object.prototype.toString.call(target), event);
