@@ -26,6 +26,61 @@ events系列demo截图：
 7. `socket.io`
    基于[component-emitter](https://www.npmjs.com/package/component-emitter)库
 
+## 如何使用
+
+### 监听DOM事件
+```html
+   <script src="http://127.0.0.1:8080/dist/evm.js?t=5"></script>
+    <script>
+        const evm = new EVM.ETargetEVM({
+            isInWhiteList(target, event, listener, options) {
+                if (target === window && event !== "error") {
+                    return true;
+                }
+                return false;
+                // return true;
+            }
+        });
+        evm.watch();
+
+        // 周期性监听
+        setInterval(async function () {
+            console.log("-------");
+            // statistics getExtremelyItems
+            const data = await evm.getExtremelyItems();
+            console.log("evm:", data);
+        }, 3000)
+        // window.__evm__ = evm;
+        // window.__evm__.getExtremelyItems().then(data=>  console.log("evm::", data));
+        // window.__evm__.statistics().then(data=>  console.log("evm::", data));
+    </script>
+```
+
+
+### EventEmitter
+
+```js
+import { EventEmitter } from "events";
+
+; (function evmCheck() {
+
+    const win = window as any;
+    const evm = win.__evm__ = new win.EVM.EventsEVM(undefined, EventEmitter);
+    evm.watch();
+    setTimeout(async function () {
+        // console.log("-------");
+        // statistics getExtremelyItems
+        const data = await evm.getExtremelyItems();
+        console.log("evm:", data);
+    }, 5000)
+
+
+    // window.__evm__.getExtremelyItems().then(data=>  console.log("evm::", data));
+    // window.__evm__.statistics().then(data=>  console.log("evm::", data));
+
+})();
+```
+
 
 
 ## 涉及的知识点
