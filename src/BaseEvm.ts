@@ -1,8 +1,8 @@
 
 import EventEmitter from "./EventEmitter";
 import EvmEventsMap from "./EventsMap";
-import { boolenFalse, isFunction, isObject, createRevocableProxy, createApplyHanlder, hasOwnProperty, checkAndProxy, restoreProperties, createPureObject, delay, getFunctionContent, isBuiltinFunctionContent } from "./util";
 import { BaseEvmOptions, EventsMapItem, EventType, StatisticsOpitons, TypeListenerOptions } from "./types";
+import { boolenFalse, checkAndProxy, createPureObject, delay, getFunctionContent, isBuiltinFunctionContent, isFunction, isObject, restoreProperties } from "./util";
 
 const DEFAUL_OPTIONS: BaseEvmOptions = {
   /**
@@ -196,7 +196,8 @@ export default class EVM {
       if (isBuiltinFunctionContent(listenerStr)) {
         continue;
       }
-      listenerKeyStr = listenerStr + ` %s----%s ${eInfo.options}`
+      // TODO::  improve
+      listenerKeyStr = listenerStr + ` %s----%s ${JSON.stringify(eInfo.options)}`
       info = map.get(listenerKeyStr);
       if (!info) {
         map.set(listenerKeyStr, {
