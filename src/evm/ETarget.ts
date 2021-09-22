@@ -1,16 +1,16 @@
 import BaseEvm from "../BaseEvm";
 
-import { BaseEvmOptions, EVMBaseEventListener, ListenerWrapper } from "../types";
+import { BaseEvmOptions, EVMBaseEventListener, ListenerWrapper, TypeListenerOptions } from "../types";
 import { boolenFalse, isFunction, isObject } from "../util";
 
 const DEFAULT_OPTIONS = {
-    isInWhiteList: boolenFalse
+    isInWhiteList: boolenFalse,
 }
 
 const ADD_PROPERTIES = ["addEventListener"];
 const REMOVE_PROPERTIES = ["removeEventListener"];
 
-export default class ETargetEVM extends BaseEvm {
+export default class ETargetEVM extends BaseEvm<TypeListenerOptions> {
 
     protected orgEt: any;
     protected rpList: {

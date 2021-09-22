@@ -139,7 +139,7 @@ export function isBuiltinFunctionContent(content: string): boolean {
 
 // https://stackoverflow.com/questions/35686850/determine-if-a-javascript-function-is-a-bound-function
 export function isBoundFunction(fn: Function): boolean {
-   return fn.name.startsWith('bound ') && !fn.hasOwnProperty('prototype'); 
+    return fn.name.startsWith('bound ') && !fn.hasOwnProperty('prototype');
 }
 
 export function boolenFalse(): boolean {
@@ -153,17 +153,35 @@ export function boolenTrue(): boolean {
 
 /**
  * 忽略 signal属性 https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/addEventListener
+ * 忽略对象属性 
+ * TODO:: improve
  * @param option 
  */
-export function copyListenerOption(option: TypeListenerOptions) {
-    if (typeof option !== "object") {
-        return option;
+export function copyListenerOption<T = any>(options: T) {
+    if (typeof options !== "object") {
+        return options;
     }
-    const opt = {
-        ...option
+
+
+    const result = createPureObject();
+    let v;
+    for (let p in options) {
+
+        // TODO::  improve 
+        if(typeof p !== "string" || typeof p !== "number") {
+            continue;
+        }
+
+        if (!hasOwnProperty(options, p)) {
+            continue;
+        }
+        v = options[p];
+        if (isObject(v)) {
+            continue;
+        }
+        result[p] = v;
     }
-    delete opt.signal
-    return opt;
+    return result;
 }
 
 
@@ -212,7 +230,7 @@ export function delay(fn: Function = () => { }, delay: number = 5000, context: u
 
 export function createFunProxy(oriFun: Function, callback: Function) {
     if (!isFunction(oriFun)) {
-         throw new Error("createFunProxy:: oriFun should be a function");
+        throw new Error("createFunProxy:: oriFun should be a function");
     }
     const rProxy = createRevocableProxy(oriFun,
         createApplyHanlder(callback));

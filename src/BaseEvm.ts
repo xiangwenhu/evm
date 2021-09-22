@@ -19,18 +19,22 @@ const DEFAUL_OPTIONS: BaseEvmOptions = {
 
 const toString = Object.prototype.toString
 
-export default class EVM {
+export default class EVM<O = any>{
   protected watched: boolean = false;
   private emitter = new EventEmitter();
-  private eventsMap = new EvmEventsMap();
+  private eventsMap: EvmEventsMap<O>;
 
   private options: BaseEvmOptions;
 
-  constructor(options: BaseEvmOptions = {}) {
+  constructor(options: BaseEvmOptions<O> = {}) {
     this.options = {
       ...DEFAUL_OPTIONS,
       ...options
     };
+
+    this.eventsMap = new EvmEventsMap({
+      isSameOptions: this.options.isSameOptions!
+    });
 
     this.innerAddCallback = this.innerAddCallback.bind(this);
     this.innerRemoveCallback = this.innerRemoveCallback.bind(this);
@@ -47,7 +51,7 @@ export default class EVM {
     }
   )
 
-  innerAddCallback(target: Object, event: EventType, listener: Function, options: TypeListenerOptions) {
+  innerAddCallback(target: Object, event: EventType, listener: Function, options: O) {
 
     const { isInWhiteList } = this.options;
 
@@ -83,7 +87,7 @@ export default class EVM {
 
   }
 
-  innerRemoveCallback(target: Object, event: EventType, listener: Function, options: TypeListenerOptions) {
+  innerRemoveCallback(target: Object, event: EventType, listener: Function, options: O) {
 
     const { isInWhiteList } = this.options;
     if (!isInWhiteList!(target, event, listener, options)) {

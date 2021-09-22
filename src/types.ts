@@ -9,9 +9,9 @@ export interface ListenerOptions {
 export type TypeListenerOptions = boolean | ListenerOptions | undefined;
 
 
-export interface EventsMapItem {
+export interface EventsMapItem<O = any> {
     listener: WeakRef<Function>;
-    options: TypeListenerOptions
+    options: O
 }
 
 export interface EventEmitterItem {
@@ -19,16 +19,16 @@ export interface EventEmitterItem {
     once?: boolean;
 }
 
-export interface ISameOptions {
-    <T = any>(options1: T, options2: T): boolean;
+export interface ISameOptions<O = any> {
+   (options1: O, options2: O): boolean;
 }
 
 export interface ISameFunction {
     (fn1: any, fn2: any, ...args: any[]): boolean;
 }
 
-export interface BaseEvmOptions {
-    isSameOptions?: ISameOptions;
+export interface BaseEvmOptions<S = any> {
+    isSameOptions?: ISameOptions<S>;
     isInWhiteList?: EVMBaseEventListener<boolean>;
     maxContentLength?: number;
 }
@@ -47,8 +47,8 @@ export interface StatisticsOpitons {
 }
 
 export interface EvmEventsMapOptions {
-    isSameOptions: ISameOptions;
-    isSameFunction(fun1: Function, fun2: Function): boolean;
+    isSameOptions?: ISameOptions;
+    isSameFunction?(fun1: Function, fun2: Function): boolean;
 }
 
 

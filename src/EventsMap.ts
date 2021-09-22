@@ -1,24 +1,22 @@
-import { EventsMapItem, EventType, EvmEventsMapOptions, ISameFunction, ISameOptions, TypeListenerOptions } from "./types";
+import { EventsMapItem, EventType, EvmEventsMapOptions, ISameFunction, ISameOptions } from "./types";
 import { copyListenerOption, isSameFunction, isSameStringifyObject } from "./util";
-
-
 
 const DEFAULT_OPTIONS: EvmEventsMapOptions = {
     isSameOptions: isSameStringifyObject,
     isSameFunction,
 }
 
-export default class EvmEventsMap {
+export default class EvmEventsMap<T = any> {
 
-    private isSameOptions: ISameOptions;
+    private isSameOptions: ISameOptions<T>;
     private isSameFunction: ISameFunction;
     constructor(options: EvmEventsMapOptions = DEFAULT_OPTIONS) {
         const opt = { ...DEFAULT_OPTIONS, ...options };
-        this.isSameOptions = opt.isSameOptions;
-        this.isSameFunction = opt.isSameFunction;
+        this.isSameOptions = opt.isSameOptions!;
+        this.isSameFunction = opt.isSameFunction!;
     }
 
-    #map = new Map<WeakRef<Object>, Map<EventType, EventsMapItem[]>>();
+    #map = new Map<WeakRef<Object>, Map<EventType, EventsMapItem<T>[]>>();
 
     /**
      * 
@@ -47,11 +45,11 @@ export default class EvmEventsMap {
      * @param event 事件类型，比如message,click等
      * @param listener 事件处理程序
      */
-    addListener(target: Object, event: EventType, listener: Function, options: TypeListenerOptions) {
+    addListener(target: Object, event: EventType, listener: Function, options: T) {
 
         const map = this.#map;
 
-        let t: Map<EventType, EventsMapItem[]> | undefined;
+        let t: Map<EventType, EventsMapItem<T>[]> | undefined;
         // target 如果是 WeakRef, 直接使用
         let wrTarget = target instanceof WeakRef ? target : this.getKeyFromTarget(target);
 
@@ -60,7 +58,7 @@ export default class EvmEventsMap {
         }
         t = this.#map.get(wrTarget);
         if (!t) {
-            t = new Map<EventType, EventsMapItem[]>();
+            t = new Map<EventType, EventsMapItem<T>[]>();
             map.set(wrTarget, t);
         }
 
@@ -73,7 +71,7 @@ export default class EvmEventsMap {
         }
         eventsInfo.push({
             listener: new WeakRef(listener),
-            options: copyListenerOption(options)
+            options: copyListenerOption(options) as T
         });
         return this;
     }
@@ -84,7 +82,7 @@ export default class EvmEventsMap {
      * @param event 事件类型，比如message,click等
      * @param listener 事件处理程序
      */
-    removeListener(target: Object, event: EventType, listener: Function, options: TypeListenerOptions) {
+    removeListener(target: Object, event: EventType, listener: Function, options: T) {
         const map = this.#map;
 
         let wrTarget = target instanceof WeakRef ? target : this.getKeyFromTarget(target);
@@ -191,7 +189,7 @@ export default class EvmEventsMap {
      * @param options 
      * @returns 
      */
-    hasListener(target: Object, event: EventType, listener: Function, options: TypeListenerOptions) {
+    hasListener(target: Object, event: EventType, listener: Function, options: T) {
         let wrTarget = this.getKeyFromTarget(target);
         if (!wrTarget) {
             return false;
@@ -222,7 +220,7 @@ export default class EvmEventsMap {
      * @param options 
      * @returns 
      */
-    getExtremelyItems(target: Object, event: EventType, listener: Function, options: TypeListenerOptions) {
+    getExtremelyItems(target: Object, event: EventType, listener: Function, options: T) {
 
         const eventsObj = this.getEventsObj(target);
         if (!eventsObj) {

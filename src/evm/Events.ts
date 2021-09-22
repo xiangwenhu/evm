@@ -10,7 +10,7 @@ const DEFAULT_OPTIONS = {
 const ADD_PROPERTIES = ["addListener", "addEventListener", "on", "prependListener"];
 const REMOVE_PROPERTIES = ["removeListener", "removeEventListener", "off"];
 
-export default class EventsEVM extends BaseEvm {
+export default class EventsEVM extends BaseEvm<undefined> {
 
   protected orgEt: any;
   protected rpList: {
@@ -46,12 +46,12 @@ export default class EventsEVM extends BaseEvm {
     return null;
   }
 
-  #innerAddCallback: EVMBaseEventListener = (target, event, listener, options) => {
+  #innerAddCallback: EVMBaseEventListener = (target, event, listener) => {
     const fn = this.#getListenr(listener)
     if (!isFunction(fn as Function)) {
       return;
     }
-    return super.innerAddCallback(target, event, fn as Function, options);
+    return super.innerAddCallback(target, event, fn as Function, undefined);
   }
 
   #innerRemoveCallback: EVMBaseEventListener = (target, event, listener, options) => {
@@ -59,7 +59,7 @@ export default class EventsEVM extends BaseEvm {
     if (!isFunction(fn as Function)) {
       return;
     }
-    return super.innerRemoveCallback(target, event, fn as Function, options);
+    return super.innerRemoveCallback(target, event, fn as Function, undefined);
   }
 
 
