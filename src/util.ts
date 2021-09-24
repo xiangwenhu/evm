@@ -62,7 +62,7 @@ export function isFunction(fn: Function): boolean {
 }
 
 export function isObject(obj: unknown): boolean {
-    return typeof obj === "object"
+    return obj !== null && typeof obj === 'object';
 }
 
 export function isSameStringifyObject(obj1: unknown, obj2: unknown) {
