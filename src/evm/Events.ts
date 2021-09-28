@@ -3,7 +3,7 @@ import BaseEvm from "../BaseEvm";
 import { BaseEvmOptions, EVMBaseEventListener, ListenerWrapper } from "../types";
 import { boolenTrue, isFunction, isObject } from "../util";
 
-const DEFAULT_OPTIONS = {
+const DEFAULT_OPTIONS: BaseEvmOptions = {
   isInWhiteList: boolenTrue
 }
 

@@ -61,6 +61,10 @@ export function isFunction(fn: Function): boolean {
     return typeof fn === 'function'
 }
 
+export function isBoolean(obj: any) {
+    return typeof obj === "boolean";
+}
+
 export function isObject(obj: unknown): boolean {
     return obj !== null && typeof obj === 'object';
 }
@@ -168,7 +172,7 @@ export function copyListenerOption<T = any>(options: T) {
     for (let p in options) {
 
         // TODO::  improve 
-        if(typeof p !== "string" || typeof p !== "number") {
+        if (typeof p !== "string" || typeof p !== "number") {
             continue;
         }
 
@@ -298,4 +302,53 @@ export function restoreProperties(prototype: any, orPrototype: any, properties: 
             prototype[pname] = oriProto[pname]
         }
     })
+}
+
+
+
+/**
+ * 获取
+ */
+function getAddEventListenerOptions(options: boolean | AddEventListenerOptions): AddEventListenerOptions {
+    // 未定义
+    if (options === undefined) {
+        return {
+            capture: false
+        }
+    }
+
+    if (isBoolean(options)) {
+        return {
+            capture: options as boolean
+        }
+    }
+
+    if (isObject(options)) {
+        return options as AddEventListenerOptions
+    }
+
+    return {
+        capture: false
+    }
+
+}
+
+
+/**
+ * EventTarget的addEventListener, removeEventListener的第三个参数options是否相同的判断
+ * @param options1 
+ * @param options2 
+ */
+export function isSameETOptions(options1: boolean | AddEventListenerOptions = {
+    passive: false
+}, options2: boolean | AddEventListenerOptions = {
+    passive: false
+}): boolean {
+
+  
+    const opt1 = getAddEventListenerOptions(options1);
+    const opt2 = getAddEventListenerOptions(options2);
+
+    return opt1.capture === opt2.capture
+
 }

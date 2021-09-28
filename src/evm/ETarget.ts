@@ -1,10 +1,11 @@
 import BaseEvm from "../BaseEvm";
 
 import { BaseEvmOptions, EVMBaseEventListener, ListenerWrapper, TypeListenerOptions } from "../types";
-import { boolenFalse, isFunction, isObject } from "../util";
+import { boolenFalse, isFunction, isObject, isSameETOptions } from "../util";
 
-const DEFAULT_OPTIONS = {
+const DEFAULT_OPTIONS: BaseEvmOptions = {
     isInWhiteList: boolenFalse,
+    isSameOptions: isSameETOptions
 }
 
 const ADD_PROPERTIES = ["addEventListener"];
