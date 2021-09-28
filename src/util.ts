@@ -340,9 +340,9 @@ function getAddEventListenerOptions(options: boolean | AddEventListenerOptions):
  * @param options2 
  */
 export function isSameETOptions(options1: boolean | AddEventListenerOptions = {
-    passive: false
+    capture: false
 }, options2: boolean | AddEventListenerOptions = {
-    passive: false
+    capture: false
 }): boolean {
 
   
