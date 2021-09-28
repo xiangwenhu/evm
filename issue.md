@@ -27,7 +27,7 @@ var g = f.bind(null);
 g.toString() // chrome: function() { [native code] }
 ```
 
-- [ ] options相同判定
+- [x] options相同判定
   只与`capture`参数有关
 
 - [x] type 是Symbol, String
