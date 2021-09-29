@@ -30,6 +30,7 @@ g.toString() // chrome: function() { [native code] }
   只与`capture`参数有关
 
 - [x] type 是Symbol, String
+- [ ] 优化在node环境的结果输出 
 
 
 ## EventEmitter component-emitter模块

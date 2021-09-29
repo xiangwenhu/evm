@@ -71,7 +71,7 @@ export default class EVM<O = any>{
 
     const eItems = this.eventsMap.getExtremelyItems(target, event, listener, options);
     if (Array.isArray(eItems) && eItems.length > 0) {
-      console.warn( `${toString.call(target)}-${target.constructor.name}`, " ExtremelyItems: type:", event, " name:" + (listener.name || "anonymous") , " options: " + options, " content:" + listener.toString().slice(0, 100));
+      console.warn(`${toString.call(target)}-${target.constructor.name}`, " ExtremelyItems: type:", event, " name:" + (listener.name || "anonymous"), " options: " + options, " content:" + listener.toString().slice(0, 100));
     }
 
     // console.log("add:", Object.prototype.toString.call(target), event);
@@ -124,8 +124,10 @@ export default class EVM<O = any>{
   protected restoreProperties = restoreProperties;
 
   protected async gc() {
-    if (window.gc && isFunction(window.gc)) {
-      window.gc();
+
+    var globalThat = globalThis as any;
+    if (typeof globalThat !== 'undefined' && isFunction(globalThat.gc)) {
+      globalThat.gc();
     }
 
     const { run } = delay(undefined, 1000);
@@ -203,6 +205,7 @@ export default class EVM<O = any>{
       }
       // TODO::  improve
       listenerKeyStr = listenerStr + ` %s----%s ${JSON.stringify(eInfo.options)}`
+      // console.log("listenerKeyStr:", listenerKeyStr);
       info = map.get(listenerKeyStr);
       if (!info) {
         map.set(listenerKeyStr, {

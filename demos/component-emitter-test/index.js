@@ -4,7 +4,7 @@ const emitter = new Emitter();
 const EVM = require('../../dist/evm');
 
 
-const evm = new EVM.EventsEVM();
+const evm = new EVM.EventsEVM(undefined, Emitter);
 evm.watch();
 
 function onEvent1(data) {
@@ -26,3 +26,25 @@ emitter.emit("event1", {
     type: "event1",
     data: "data",
 })
+
+evm.getExtremelyItems()
+    .then(function (res) {
+        res.forEach(r => {
+            console.log(r.type, r.constructor, r.events);
+        })
+    })
+
+
+// 输出结果
+/*
+[object Object] Emitter Map(1) {
+    'event1' => [
+        {
+        name: 'onEvent1',
+        content: 'function onEvent1(data) {\r\n    console.log("event1", data)\r\n}',
+        count: 3,
+        options: undefined
+        }
+    ]
+    }
+*/
