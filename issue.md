@@ -34,7 +34,7 @@ g.toString() // chrome: function() { [native code] }
 
 
 ## EventEmitter component-emitter模块
-`Socket.io` 客户端的Client继承与 component-emitter 
+`socket.io-client` Client继承与 component-emitter 
 https://www.npmjs.com/package/component-emitter
 https://github.com/component/emitter
 

@@ -27,7 +27,9 @@ events系列demo截图：
 5. nodejs 标准的 [events](https://github.com/browserify/events)
 6. MQTT
    基于 [events](https://github.com/browserify/events)库
-7. `socket.io`
+7. `socket.io` 
+   基于 [events](https://github.com/browserify/events)库
+8. `socket.io-client`
    基于[component-emitter](https://www.npmjs.com/package/component-emitter)库
 
 ## 如何使用

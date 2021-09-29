@@ -300,4 +300,12 @@ export default class EVM<O = any>{
     return this.eventsMap.data;
   }
 
+  removeByTarget(target: Object) {
+    this.eventsMap.removeByTarget(target);
+  }
+
+  removeEventsByTarget(target: Object, type: EventType) {
+    this.eventsMap.removeEventsByTarget(target, type);
+  }
+
 }

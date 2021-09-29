@@ -11,6 +11,9 @@ const DEFAULT_OPTIONS: BaseEvmOptions = {
 const ADD_PROPERTIES = ["addEventListener"];
 const REMOVE_PROPERTIES = ["removeEventListener"];
 
+/**
+ * EVM for EventTarget
+ */
 export default class ETargetEVM extends BaseEvm<TypeListenerOptions> {
 
     protected orgEt: any;

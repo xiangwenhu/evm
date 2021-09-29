@@ -136,7 +136,7 @@ export default class EvmEventsMap<T = any> {
     }
 
     /**
-     * 
+     * 删除某个实例全部信息
      * @param target  object
      * @returns 
      */
@@ -146,6 +146,26 @@ export default class EvmEventsMap<T = any> {
             return;
         }
         return this.#map.delete(wrTarget);
+    }
+
+
+    /**
+     * 删除某个实例的某个类别的全部信息
+     * @param target 
+     * @param event 
+     */
+    removeEventsByTarget(target: object, event: EventType) {
+        const wrTarget = this.getKeyFromTarget(target);
+        if (!wrTarget) {
+            return;
+        }
+
+        const infos = this.#map.get(wrTarget);
+        if (!infos) {
+            return;
+        }
+
+        return infos.delete(event);
     }
 
     /**

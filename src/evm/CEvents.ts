@@ -7,14 +7,13 @@ const DEFAULT_OPTIONS: BaseEvmOptions = {
   isInWhiteList: boolenTrue
 }
 
-const ADD_PROPERTIES = ["addListener", "addEventListener", "on", "prependListener"];
-const REMOVE_PROPERTIES = ["removeListener", "removeEventListener", "off"];
-
+const ADD_PROPERTIES = ["addEventListener", "on"];
+const REMOVE_PROPERTIES = ["removeEventListener", "removeAllListeners", "removeListener", "off"];
 
 /**
- * EVM for events
-*/
-export default class EventsEVM extends BaseEvm<undefined> {
+ * EVM for component-emitter
+ */
+export default class CEventsEVM extends BaseEvm<undefined> {
 
   protected orgEt: any;
   protected rpList: {
@@ -59,6 +58,16 @@ export default class EventsEVM extends BaseEvm<undefined> {
   }
 
   #innerRemoveCallback: EVMBaseEventListener = (target, event, listener) => {
+
+    // 没有event的时候，表示全部删除
+    if (event === undefined) {
+      return super.removeByTarget(target);
+    }
+    // 没有listener，表示删除一个类别
+    if (listener === undefined) {
+      return super.removeEventsByTarget(target, event);
+    }
+
     const fn = this.#getListenr(listener)
     if (!isFunction(fn as Function)) {
       return;
