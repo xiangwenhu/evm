@@ -40,4 +40,6 @@ https://github.com/component/emitter
 
 其比较简单，只有简单的on , off
 
+- [x] off, removeListener通过参数可能全部删除，也可能删除某个类别
+
 
