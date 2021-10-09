@@ -4,7 +4,7 @@
 
 完成思路，请参考：
 * [理论篇 - 上](https://juejin.cn/post/7010919477541863438)
-* [代码篇 - 下](https://juejin.cn/post/7016252094529142798)
+* [代码篇 - 下](https://juejin.cn/post/7016872891815821348)
 
 
 EventTarget系列demo截图：
