@@ -135,7 +135,7 @@ export default class EVM<O = any>{
     await run();
   }
 
-  #getLlistenerContent(listener: Function) {
+  #getListenerContent(listener: Function) {
     const { maxContentLength } = this.options;
     return listener.toString().slice(0, maxContentLength)
   }
@@ -145,7 +145,7 @@ export default class EVM<O = any>{
     if (!containsContent) {
       return name;
     }
-    return createPureObject({ name, content: this.#getLlistenerContent(listener) }) as Record<string, any>;
+    return createPureObject({ name, content: this.#getListenerContent(listener) }) as Record<string, any>;
   }
 
   async statistics({ containsContent = false }: StatisticsOpitons = {}) {
@@ -261,29 +261,29 @@ export default class EVM<O = any>{
   }
 
 
-  onAdd(fn: Function): void {
-    this.emitter.on("on-add", fn)
-  }
+  // onAdd(fn: Function): void {
+  //   this.emitter.on("on-add", fn)
+  // }
 
-  offAdd(fn: Function) {
-    this.emitter.off("on-add", fn)
-  }
+  // offAdd(fn: Function) {
+  //   this.emitter.off("on-add", fn)
+  // }
 
-  onRemove(fn: Function) {
-    this.emitter.on("on-remove", fn)
-  }
+  // onRemove(fn: Function) {
+  //   this.emitter.on("on-remove", fn)
+  // }
 
-  offRemove(fn: Function) {
-    this.emitter.off("on-remove", fn)
-  }
+  // offRemove(fn: Function) {
+  //   this.emitter.off("on-remove", fn)
+  // }
 
-  onAlarm(fn: Function) {
-    this.emitter.on("on-alarm", fn)
-  }
+  // onAlarm(fn: Function) {
+  //   this.emitter.on("on-alarm", fn)
+  // }
 
-  offAlarm(fn: Function) {
-    this.emitter.off("on-alarm", fn)
-  }
+  // offAlarm(fn: Function) {
+  //   this.emitter.off("on-alarm", fn)
+  // }
 
   watch() {
     if (this.watched) {
