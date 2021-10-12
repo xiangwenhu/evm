@@ -20,7 +20,7 @@ export interface EventEmitterItem {
 }
 
 export interface ISameOptions<O = any> {
-   (options1: O, options2: O): boolean;
+    (options1: O, options2: O): boolean;
 }
 
 export interface ISameFunction {
@@ -28,9 +28,22 @@ export interface ISameFunction {
 }
 
 export interface BaseEvmOptions<S = any> {
+    /**
+     * 是否是相同选项
+     */
     isSameOptions?: ISameOptions<S>;
+    /**
+     * 白名单
+     */
     isInWhiteList?: EVMBaseEventListener<boolean>;
+    /**
+     * 最大的函数内容截取长度
+     */
     maxContentLength?: number;
+    /**
+     * 是否重写bind函数
+     */
+    overrideBind?: boolean;
 }
 
 

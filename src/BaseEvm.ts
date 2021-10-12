@@ -13,7 +13,8 @@ const DEFAUL_OPTIONS: BaseEvmOptions = {
    * 白名单判断函数
    */
   isInWhiteList: boolenFalse,
-  maxContentLength: 200
+  maxContentLength: 200,
+  overrideBind: false,
 }
 
 
