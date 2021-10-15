@@ -3,7 +3,6 @@ const emitter = new Emitter();
 
 const EVM = require('../../dist/evm');
 
-
 const evm = new EVM.CEventsEVM({
     overrideBind: true,
 }, Emitter);
@@ -13,7 +12,7 @@ function onEvent1(data) {
     console.log("event1", data)
 }
 
-const onEvent1Bound = onEvent1.bind();
+const onEvent1Bound = onEvent1.bind({});
 
 
 const onEvent1_2 = onEvent1;
@@ -33,8 +32,8 @@ console.log("emitter:keys", keys.join(","))
 
 
 emitter.on("event1", onEvent1Bound)
-emitter.on("event1", onEvent1_2)
-emitter.on("event1", onEvent1_3)
+emitter.on("event1", onEvent1Bound)
+emitter.on("event1", onEvent1Bound)
 
 // emitter.on("event2", onEvent1)
 // emitter.on("event2", onEvent1_2)
@@ -49,7 +48,7 @@ emitter.emit("event1", {
 
 
 // emitter.off("event1");
-emitter.off("event1");
+// emitter.off("event1");
 
 evm.getExtremelyItems()
     .then(function (res) {
