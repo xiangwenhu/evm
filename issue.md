@@ -16,7 +16,7 @@ events其实支持了`newListener`和`removeListener`的监听事件。
 - [ ] prependListener 并未走原型 addListener
 需要代理
 
-- [ ] 被bind后的函数，不返回源码
+- [x] 被bind后的函数，不返回源码
 http://cn.voidcc.com/question/p-bpwagzik-be.html  
 https://stackoverflow.com/questions/40451661/why-is-bound-function-tostring-not-returning-the-original-source-code
 https://stackoverflow.com/questions/35686850/determine-if-a-javascript-function-is-a-bound-function
