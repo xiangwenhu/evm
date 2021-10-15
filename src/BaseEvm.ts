@@ -3,6 +3,7 @@ import EventEmitter from "./EventEmitter";
 import EvmEventsMap from "./EventsMap";
 import { BaseEvmOptions, EventsMapItem, EventType, StatisticsOpitons, TypeListenerOptions } from "./types";
 import { boolenFalse, isSameStringifyObject, checkAndProxy, createPureObject, delay, getFunctionContent, isBuiltinFunctionContent, isFunction, isObject, restoreProperties } from "./util";
+import * as bindUtil from "./bindUtil"
 
 const DEFAUL_OPTIONS: BaseEvmOptions = {
   /**
@@ -72,7 +73,7 @@ export default class EVM<O = any>{
 
     const eItems = this.eventsMap.getExtremelyItems(target, event, listener, options);
     if (Array.isArray(eItems) && eItems.length > 0) {
-      console.warn(`${toString.call(target)}-${target.constructor.name}`, " ExtremelyItems: type:", event, " name:" + (listener.name || "anonymous"), " options: " + options, " content:" + listener.toString().slice(0, 100));
+      console.warn(`${toString.call(target)}-${target.constructor.name}`, " ExtremelyItems: type:", event, " name:" + (listener.name || "unkown"), " options: " + options, " content:" + listener.toString().slice(0, 100));
     }
 
     // console.log("add:", Object.prototype.toString.call(target), event);
@@ -142,7 +143,7 @@ export default class EVM<O = any>{
   }
 
   #getListenerInfo(listener: Function, containsContent: boolean = false) {
-    const name = listener.name || "anonymous";
+    const name = listener.name || "unkown";
     if (!containsContent) {
       return name;
     }
@@ -290,11 +291,17 @@ export default class EVM<O = any>{
     if (this.watched) {
       return console.error("watched")
     }
+    if (this.options.overrideBind) {
+      bindUtil.doBind();
+    }
     this.watched = true;
   }
 
   cancel() {
     this.watched = false;
+    if (this.options.overrideBind) {
+      bindUtil.undoBind();
+    }
   }
 
   get data() {

@@ -4,12 +4,18 @@ const emitter = new Emitter();
 const EVM = require('../../dist/evm');
 
 
-const evm = new EVM.CEventsEVM(undefined, Emitter);
+const evm = new EVM.CEventsEVM({
+    overrideBind: true,
+}, Emitter);
 evm.watch();
 
 function onEvent1(data) {
     console.log("event1", data)
 }
+
+const onEvent1Bound = onEvent1.bind();
+
+
 const onEvent1_2 = onEvent1;
 function onEvent1_3(data) {
     console.log("event1", data)
@@ -25,13 +31,14 @@ for (var p in emitter) {
 console.log("emitter:keys", keys.join(","))
 
 
-emitter.on("event1", onEvent1)
+
+emitter.on("event1", onEvent1Bound)
 emitter.on("event1", onEvent1_2)
 emitter.on("event1", onEvent1_3)
 
-emitter.on("event2", onEvent1)
-emitter.on("event2", onEvent1_2)
-emitter.on("event2", onEvent1_3)
+// emitter.on("event2", onEvent1)
+// emitter.on("event2", onEvent1_2)
+// emitter.on("event2", onEvent1_3)
 
 
 
