@@ -16,7 +16,7 @@ const REMOVE_PROPERTIES = ["removeListener", "removeEventListener", "off"];
 */
 export default class EventsEVM extends BaseEvm<undefined> {
 
-  protected orgEt: any;
+  protected orgEtPrototype: any;
   protected rpList: {
     proxy: object;
     revoke: () => void;
@@ -32,7 +32,7 @@ export default class EventsEVM extends BaseEvm<undefined> {
     if (et == null || !isObject(et.prototype)) {
       throw new Error("参数et的原型必须是一个有效的对象")
     }
-    this.orgEt = { ...et };
+    this.orgEtPrototype = { ...et };
     this.et = et;
 
   }
@@ -86,8 +86,8 @@ export default class EventsEVM extends BaseEvm<undefined> {
 
   cancel() {
     super.cancel();
-    this.restoreProperties(this.et.prototype, this.orgEt.prototype, ADD_PROPERTIES);
-    this.restoreProperties(this.et.prototype, this.orgEt.prototype, REMOVE_PROPERTIES);
+    this.restoreProperties(this.et.prototype, this.orgEtPrototype, ADD_PROPERTIES);
+    this.restoreProperties(this.et.prototype, this.orgEtPrototype, REMOVE_PROPERTIES);
     this.rpList.forEach(rp => rp.revoke());
     this.rpList = [];
   }

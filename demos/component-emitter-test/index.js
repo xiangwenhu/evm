@@ -72,3 +72,8 @@ evm.getExtremelyItems()
     ]
     }
 */
+
+
+evm.cancel();
+
+console.log("bind:", Function.prototype.bind.toString())
