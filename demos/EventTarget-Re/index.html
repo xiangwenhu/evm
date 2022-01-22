@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>元素删除并置空，会回收事件</title>
+</head>
+
+<body>
+
+    <div id="element">
+        点我啊
+    </div>
+
+    <script>
+
+
+        ; (function int() {
+
+            function onClick(event) {
+                console.log(event.target)
+            }
+            let wr = new WeakRef(onClick);
+
+            let element = document.getElementById("element");
+            element.addEventListener("click", onClick);
+
+            setTimeout(() => {
+                console.log("删除节点");
+                document.body.removeChild(element);
+
+                // 影响回收
+                element = null;
+            }, 3000)
+
+            setInterval(() => {
+                console.log("检查事件");
+                // window.gc();
+                let obj = wr.deref();
+                if (obj) {
+                    return console.log("未被回收")
+                }
+                console.log("被回收")
+            }, 5000)
+
+        })();
+
+
+    </script>
+
+
+</body>
+
+</html>
