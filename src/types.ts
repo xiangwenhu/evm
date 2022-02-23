@@ -55,7 +55,7 @@ export interface ListenerWrapper {
     listener: Function
 }
 
-export interface StatisticsOpitons {
+export interface StatisticsOptions {
     containsContent?: boolean
 }
 

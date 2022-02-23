@@ -46,7 +46,7 @@ export function createRevocableProxy(obj: object | Function, handler: any) {
  * @param callback 
  * @returns 
  */
-export function createApplyHanlder(callback: Function) {
+export function createApplyHandler(callback: Function) {
     return {
         apply(target: Function, ctx: object, args: unknown[]) {
             // 因为执行过程中能失败，所以callback后置执行
@@ -130,7 +130,7 @@ export function getFunctionContent(fn: Function) {
     if (content == NATIVE_CODE_ANONYMOUS_FUN) {
         return NATIVE_CODE_ANONYMOUS_FUN.slice(11);
     }
-    // TODDO:: 特殊函数名处理
+    // TODO:: 特殊函数名处理
     // const startIndex = `function ${fn.name}()`.length;
     // return content.slice(startIndex)
     const index = content.indexOf("{");
@@ -146,11 +146,11 @@ export function isBoundFunction(fn: Function): boolean {
     return fn.name.startsWith('bound ') && !fn.hasOwnProperty('prototype');
 }
 
-export function boolenFalse(): boolean {
+export function booleanFalse(): boolean {
     return false;
 }
 
-export function boolenTrue(): boolean {
+export function booleanTrue(): boolean {
     return true;
 }
 
@@ -207,14 +207,14 @@ export function delay(fn: Function = () => { }, delay: number = 5000, context: u
         }
     }
     let ticket: any;
-    let runned = false;
+    let executed = false;
     return {
         run(...args: any[]) {
             return new Promise((resolve, reject) => {
-                if (runned === true) {
+                if (executed === true) {
                     return;
                 }
-                runned = true;
+                executed = true;
                 ticket = setTimeout(async () => {
                     try {
                         const res = await fn.apply(context, args);
@@ -237,7 +237,7 @@ export function createFunProxy(oriFun: Function, callback: Function) {
         throw new Error("createFunProxy:: oriFun should be a function");
     }
     const rProxy = createRevocableProxy(oriFun,
-        createApplyHanlder(callback));
+        createApplyHandler(callback));
 
     return rProxy;
 }

@@ -87,7 +87,7 @@ export default class EvmEventsMap<T = any> {
 
         let wrTarget = target instanceof WeakRef ? target : this.getKeyFromTarget(target);
         if (!wrTarget) {
-            return console.error('EvmEventsMap:: remove faild, target is not found');
+            return console.error('EvmEventsMap:: remove failed, target is not found');
         }
 
         const t = map.get(wrTarget);
@@ -96,7 +96,7 @@ export default class EvmEventsMap<T = any> {
             return
         }
         if (!t.has(event)) {
-            return console.error(`EvmEventsMap:: remove faild, event (${event}) is not found`);
+            return console.error(`EvmEventsMap:: remove failed, event (${event}) is not found`);
         }
 
         // options 不能比同一个对象，比字符串的值
@@ -222,12 +222,12 @@ export default class EvmEventsMap<T = any> {
             return false;
         }
 
-        return wrListeners.findIndex(lobj => {
-            const l = lobj.listener.deref();
+        return wrListeners.findIndex(lObj => {
+            const l = lObj.listener.deref();
             if (!l) {
                 return false;
             }
-            return l === listener && this.isSameOptions(options, lobj.options)
+            return l === listener && this.isSameOptions(options, lObj.options)
         }) > -1
 
     }

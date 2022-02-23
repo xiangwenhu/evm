@@ -1,11 +1,11 @@
 
 import EventEmitter from "./EventEmitter";
 import EvmEventsMap from "./EventsMap";
-import { BaseEvmOptions, EventsMapItem, EventType, StatisticsOpitons, TypeListenerOptions } from "./types";
-import { boolenFalse, isSameStringifyObject, checkAndProxy, createPureObject, delay, getFunctionContent, isBuiltinFunctionContent, isFunction, isObject, restoreProperties } from "./util";
+import { BaseEvmOptions, EventsMapItem, EventType, StatisticsOptions, TypeListenerOptions } from "./types";
+import { booleanFalse, isSameStringifyObject, checkAndProxy, createPureObject, delay, getFunctionContent, isBuiltinFunctionContent, isFunction, isObject, restoreProperties } from "./util";
 import * as bindUtil from "./bindUtil"
 
-const DEFAUL_OPTIONS: BaseEvmOptions = {
+const DEFAULT_OPTIONS: BaseEvmOptions = {
   /**
    * 选项相同判断函数
   */
@@ -13,7 +13,7 @@ const DEFAUL_OPTIONS: BaseEvmOptions = {
   /**
    * 白名单判断函数
    */
-  isInWhiteList: boolenFalse,
+  isInWhiteList: booleanFalse,
   maxContentLength: 200,
   overrideBind: false,
 }
@@ -30,7 +30,7 @@ export default class EVM<O = any>{
 
   constructor(options: BaseEvmOptions<O> = {}) {
     this.options = {
-      ...DEFAUL_OPTIONS,
+      ...DEFAULT_OPTIONS,
       ...options
     };
 
@@ -73,7 +73,7 @@ export default class EVM<O = any>{
 
     const eItems = this.eventsMap.getExtremelyItems(target, event, listener, options);
     if (Array.isArray(eItems) && eItems.length > 0) {
-      console.warn(`${toString.call(target)}-${target.constructor.name}`, " ExtremelyItems: type:", event, " name:" + (listener.name || "unkown"), " options: " + options, " content:" + listener.toString().slice(0, 100));
+      console.warn(`${toString.call(target)}-${target.constructor.name}`, " ExtremelyItems: type:", event, " name:" + (listener.name || "unknown"), " options: " + options, " content:" + listener.toString().slice(0, 100));
     }
 
     // console.log("add:", Object.prototype.toString.call(target), event);
@@ -150,7 +150,7 @@ export default class EVM<O = any>{
     return createPureObject({ name, content: this.#getListenerContent(listener) }) as Record<string, any>;
   }
 
-  async statistics({ containsContent = false }: StatisticsOpitons = {}) {
+  async statistics({ containsContent = false }: StatisticsOptions = {}) {
 
     await this.gc();
 

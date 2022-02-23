@@ -22,9 +22,9 @@ export function doBind() {
     }
     oriToString = Function.prototype.toString;
 
-    const overridedBind: (thisArg: any, ...args: any[]) => Function = (
+    const overrideBind: (thisArg: any, ...args: any[]) => Function = (
         function (oriBind) {
-            return function overridedBind(this: any) {
+            return function overrideBind(this: any) {
                 if (typeof this !== "function") {
                     throw new Error("必须是一个函数")
                 }
@@ -42,8 +42,8 @@ export function doBind() {
         }
     )(oriBind);
 
-    (overridedBind as any)[SymbolForBind] = true;
-    Function.prototype.bind = overridedBind;
+    (overrideBind as any)[SymbolForBind] = true;
+    Function.prototype.bind = overrideBind;
     Function.prototype.toString = function (this:any) {
         if(hasOwnProperty.call(this, SymbolForBind)){
             return this[SymbolForBind].toString();

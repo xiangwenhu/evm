@@ -1,10 +1,10 @@
 import BaseEvm from "../BaseEvm";
 
 import { BaseEvmOptions, EVMBaseEventListener, ListenerWrapper, TypeListenerOptions } from "../types";
-import { boolenFalse, isFunction, isObject, isSameETOptions } from "../util";
+import { booleanFalse, isFunction, isObject, isSameETOptions } from "../util";
 
 const DEFAULT_OPTIONS: BaseEvmOptions = {
-    isInWhiteList: boolenFalse,
+    isInWhiteList: booleanFalse,
     isSameOptions: isSameETOptions
 }
 
@@ -37,7 +37,7 @@ export default class ETargetEVM extends BaseEvm<TypeListenerOptions> {
 
     }
 
-    #getListenr(listener: Function | ListenerWrapper) {
+    #getListener(listener: Function | ListenerWrapper) {
         if (typeof listener == "function") {
             return listener
         }
@@ -45,7 +45,7 @@ export default class ETargetEVM extends BaseEvm<TypeListenerOptions> {
     }
 
     #innerAddCallback: EVMBaseEventListener<void, string> = (target, event, listener, options) => {
-        const fn = this.#getListenr(listener)
+        const fn = this.#getListener(listener)
         if (!isFunction(fn as Function)) {
             return;
         }
@@ -53,7 +53,7 @@ export default class ETargetEVM extends BaseEvm<TypeListenerOptions> {
     }
 
     #innerRemoveCallback: EVMBaseEventListener<void, string> = (target, event, listener, options) => {
-        const fn = this.#getListenr(listener)
+        const fn = this.#getListener(listener)
         if (!isFunction(fn as Function)) {
             return;
         }
