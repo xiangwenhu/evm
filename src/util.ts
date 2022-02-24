@@ -355,7 +355,7 @@ export function isStrict(this: any) {
 };
 
 const regexpUseStrict = /^function[^(]*\([^)]*\)\s*\{\s*(["'])use strict\1/
-export function isFunctionStrict(fn: Function){
+export function isFunctionStrict(fn: Function) {
     return regexpUseStrict.test(fn.toString())
 }
 
@@ -373,4 +373,15 @@ export function getStack(fn: Function): string[] {
         caller = caller.caller;
     }
     return stacks;
+}
+
+
+export async function executeGC() {
+    var globalThat = globalThis as any;
+    if (typeof globalThat !== 'undefined' && isFunction(globalThat.gc)) {
+        globalThat.gc();
+    }
+    // 如果没有gc方法，延时1秒
+    const { run } = delay(undefined, 1000);
+    await run();
 }

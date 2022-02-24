@@ -29969,7 +29969,2455 @@ var App = /*#__PURE__*/function (_React$Component) {
 }(_react.default.Component);
 
 exports.default = App;
-},{"react":"node_modules/react/index.js","./Views/View1":"Views/View1.jsx","./Views/View2":"Views/View2.jsx"}],"index.jsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","./Views/View1":"Views/View1.jsx","./Views/View2":"Views/View2.jsx"}],"../../src/util.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.hasOwnProperty = hasOwnProperty;
+exports.createPureObject = createPureObject;
+exports.createRevocableProxy = createRevocableProxy;
+exports.createApplyHandler = createApplyHandler;
+exports.isFunction = isFunction;
+exports.isBoolean = isBoolean;
+exports.isObject = isObject;
+exports.isSameStringifyObject = isSameStringifyObject;
+exports.isSameFunction = isSameFunction;
+exports.getFunctionContent = getFunctionContent;
+exports.isBuiltinFunctionContent = isBuiltinFunctionContent;
+exports.isBoundFunction = isBoundFunction;
+exports.booleanFalse = booleanFalse;
+exports.booleanTrue = booleanTrue;
+exports.copyListenerOption = copyListenerOption;
+exports.delay = delay;
+exports.createFunProxy = createFunProxy;
+exports.checkAndProxy = checkAndProxy;
+exports.restoreProperties = restoreProperties;
+exports.isSameETOptions = isSameETOptions;
+exports.isStrict = isStrict;
+exports.isFunctionStrict = isFunctionStrict;
+exports.getStack = getStack;
+exports.executeGC = executeGC;
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+var hasOwnP = Object.prototype.hasOwnProperty;
+var NATIVE_CODE_ANONYMOUS_FUN = "function () { [native code] }";
+var NATIVE_CODE_CON = "{ [native code] }";
+/**
+ * 是否有某属性
+ * @param obj
+ * @param property
+ * @returns
+ */
+
+function hasOwnProperty(obj, property) {
+  if (!isObject(obj)) {
+    return false;
+  }
+
+  return hasOwnP.call(obj, property);
+}
+/**
+ * 创建纯净对象
+ * @returns
+ */
+
+
+function createPureObject() {
+  var obj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : undefined;
+  var pObj = Object.create(null);
+
+  if (!isObject(obj)) {
+    return pObj;
+  }
+
+  return Object.assign(pObj, obj);
+}
+/**
+ * 创建可取消的代理
+ * @param obj
+ * @param handler
+ * @returns
+ */
+
+
+function createRevocableProxy(obj, handler) {
+  return Proxy.revocable(obj, handler);
+}
+/**
+ * 创建拦截函数调用的代理
+ * @param callback
+ * @returns
+ */
+
+
+function createApplyHandler(callback) {
+  return {
+    apply: function apply(target, ctx, args) {
+      // 因为执行过程中能失败，所以callback后置执行
+      var result = Reflect.apply(target, ctx, args);
+      callback.apply(void 0, _toConsumableArray([ctx].concat(args)));
+      return result;
+    }
+  };
+}
+
+function isFunction(fn) {
+  return typeof fn === 'function';
+}
+
+function isBoolean(obj) {
+  return typeof obj === "boolean";
+}
+
+function isObject(obj) {
+  return obj !== null && _typeof(obj) === 'object';
+}
+
+function isSameStringifyObject(obj1, obj2) {
+  return JSON.stringify(obj1) === JSON.stringify(obj2);
+}
+/**
+ * 是否是同一函数
+ * @param fn1
+ * @param fn2
+ * @param compareContent
+ * @returns
+ */
+
+
+function isSameFunction(fn1, fn2) {
+  var compareContent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+  if (fn1 == undefined || fn2 == undefined) {
+    return false;
+  }
+
+  if (!isFunction(fn1) || !isFunction(fn2)) {
+    return false;
+  }
+
+  if (fn1.length !== fn2.length) {
+    return false;
+  } // if (fn1.name !== fn2.name) {
+  //     return false;
+  // }
+
+
+  if (!compareContent) {
+    return fn1 === fn2;
+  }
+
+  return fn1 === fn2 || isSameContentFunction(fn1, fn2);
+}
+
+function isSameContentFunction(fn1, fn2) {
+  if (!isFunction(fn1) || !isFunction(fn2)) {
+    return false;
+  }
+
+  var fn1Content = getFunctionContent(fn1);
+  var fn2Content = getFunctionContent(fn2);
+
+  if (isBuiltinFunctionContent(fn1Content) || isBuiltinFunctionContent(fn2Content)) {
+    return false;
+  }
+
+  return fn1Content == fn2Content;
+}
+/**
+ * 获取函数体
+ * @param fn
+ * @returns
+ */
+
+
+function getFunctionContent(fn) {
+  var content = fn.toString();
+
+  if (content == NATIVE_CODE_ANONYMOUS_FUN) {
+    return NATIVE_CODE_ANONYMOUS_FUN.slice(11);
+  } // TODO:: 特殊函数名处理
+  // const startIndex = `function ${fn.name}()`.length;
+  // return content.slice(startIndex)
+
+
+  var index = content.indexOf("{");
+  return content.slice(index);
+}
+
+function isBuiltinFunctionContent(content) {
+  return content.trim() == NATIVE_CODE_CON;
+} // https://stackoverflow.com/questions/35686850/determine-if-a-javascript-function-is-a-bound-function
+
+
+function isBoundFunction(fn) {
+  return fn.name.startsWith('bound ') && !fn.hasOwnProperty('prototype');
+}
+
+function booleanFalse() {
+  return false;
+}
+
+function booleanTrue() {
+  return true;
+}
+/**
+ * 忽略 signal属性 https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/addEventListener
+ * 忽略对象属性
+ * TODO:: improve
+ * @param option
+ */
+
+
+function copyListenerOption(options) {
+  if (_typeof(options) !== "object") {
+    return options;
+  }
+
+  var result = createPureObject();
+  var v;
+
+  for (var p in options) {
+    // TODO::  improve 
+    if (typeof p !== "string" || typeof p !== "number") {
+      continue;
+    }
+
+    if (!hasOwnProperty(options, p)) {
+      continue;
+    }
+
+    v = options[p];
+
+    if (isObject(v)) {
+      continue;
+    }
+
+    result[p] = v;
+  }
+
+  return result;
+}
+/**
+ * 延时执行函数
+ * @param fn
+ * @param delay
+ * @param context
+ * @returns
+ */
+
+
+function delay() {
+  var fn = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function () {};
+  var delay = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 5000;
+  var context = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+  if (!isFunction(fn)) {
+    return {
+      run: function run() {
+        return Promise.resolve();
+      },
+      cancel: function cancel() {}
+    };
+  }
+
+  var ticket;
+  var executed = false;
+  return {
+    run: function run() {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return new Promise(function (resolve, reject) {
+        if (executed === true) {
+          return;
+        }
+
+        executed = true;
+        ticket = setTimeout( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+          var res;
+          return regeneratorRuntime.wrap(function _callee$(_context) {
+            while (1) {
+              switch (_context.prev = _context.next) {
+                case 0:
+                  _context.prev = 0;
+                  _context.next = 3;
+                  return fn.apply(context, args);
+
+                case 3:
+                  res = _context.sent;
+                  resolve(res);
+                  _context.next = 10;
+                  break;
+
+                case 7:
+                  _context.prev = 7;
+                  _context.t0 = _context["catch"](0);
+                  reject(_context.t0);
+
+                case 10:
+                case "end":
+                  return _context.stop();
+              }
+            }
+          }, _callee, null, [[0, 7]]);
+        })), delay);
+      });
+    },
+    cancel: function cancel() {
+      clearTimeout(ticket);
+    }
+  };
+}
+
+function createFunProxy(oriFun, callback) {
+  if (!isFunction(oriFun)) {
+    throw new Error("createFunProxy:: oriFun should be a function");
+  }
+
+  var rProxy = createRevocableProxy(oriFun, createApplyHandler(callback));
+  return rProxy;
+}
+/**
+ * 检查属性，并产生代理
+ * @param prototype
+ * @param callback
+ * @param ckProperties
+ * @param proxyProperties
+ * @returns
+ */
+
+
+function checkAndProxy(prototype, callback, ckProperties) {
+  var proxyProperties = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : ckProperties;
+  var fn;
+  var proto = prototype; // 检查方法
+
+  for (var i = 0; i < ckProperties.length; i++) {
+    if (!hasOwnProperty(proto, ckProperties[i])) {
+      continue;
+    }
+
+    fn = proto[ckProperties[i]];
+
+    if (isFunction(fn)) {
+      break;
+    }
+  }
+
+  if (!isFunction(fn)) {
+    return null;
+  }
+
+  var rpProxy = createFunProxy(fn, callback);
+
+  if (!rpProxy) {
+    return null;
+  } // 替换方法
+
+
+  proxyProperties.forEach(function (pname) {
+    if (hasOwnProperty(proto, pname) && isFunction(proto[pname])) {
+      proto[pname] = rpProxy.proxy;
+    }
+  });
+  return rpProxy;
+}
+/**
+ * 还原属性方法
+ * @param prototype
+ * @param orPrototype
+ * @param properties
+ */
+
+
+function restoreProperties(prototype, orPrototype, properties) {
+  var proto = prototype;
+  var oriProto = orPrototype;
+  properties.forEach(function (pname) {
+    if (hasOwnProperty(proto, pname) && isFunction(proto[pname])) {
+      prototype[pname] = oriProto[pname];
+    }
+  });
+}
+/**
+ * 获取
+ */
+
+
+function getAddEventListenerOptions(options) {
+  // 未定义
+  if (options === undefined) {
+    return {
+      capture: false
+    };
+  }
+
+  if (isBoolean(options)) {
+    return {
+      capture: options
+    };
+  }
+
+  if (isObject(options)) {
+    return options;
+  }
+
+  return {
+    capture: false
+  };
+}
+/**
+ * EventTarget的addEventListener, removeEventListener的第三个参数options是否相同的判断
+ * @param options1
+ * @param options2
+ */
+
+
+function isSameETOptions() {
+  var options1 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+    capture: false
+  };
+  var options2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
+    capture: false
+  };
+  var opt1 = getAddEventListenerOptions(options1);
+  var opt2 = getAddEventListenerOptions(options2);
+  return opt1.capture === opt2.capture;
+}
+
+function isStrict() {
+  return this === undefined;
+}
+
+;
+var regexpUseStrict = /^function[^(]*\([^)]*\)\s*\{\s*(["'])use strict\1/;
+
+function isFunctionStrict(fn) {
+  return regexpUseStrict.test(fn.toString());
+}
+
+function getStack(fn) {
+  var stacks = []; // 严格模式
+
+  if (isStrict() || isFunctionStrict(fn)) {
+    return stacks;
+  }
+
+  stacks.unshift("function ".concat(fn.name));
+  var caller = fn.caller;
+
+  while (caller) {
+    stacks.unshift("function ".concat(caller.name));
+    caller = caller.caller;
+  }
+
+  return stacks;
+}
+
+function executeGC() {
+  return _executeGC.apply(this, arguments);
+}
+
+function _executeGC() {
+  _executeGC = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+    var globalThat, _delay, run;
+
+    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            globalThat = globalThis;
+
+            if (typeof globalThat !== 'undefined' && isFunction(globalThat.gc)) {
+              globalThat.gc();
+            } // 如果没有gc方法，延时1秒
+
+
+            _delay = delay(undefined, 1000), run = _delay.run;
+            _context2.next = 5;
+            return run();
+
+          case 5:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2);
+  }));
+  return _executeGC.apply(this, arguments);
+}
+},{}],"../../src/EventEmitter.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _classPrivateFieldSet(receiver, privateMap, value) { var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "set"); _classApplyDescriptorSet(receiver, descriptor, value); return value; }
+
+function _classApplyDescriptorSet(receiver, descriptor, value) { if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } }
+
+function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+function _classPrivateFieldGet(receiver, privateMap) { var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+
+function _classExtractFieldDescriptor(receiver, privateMap, action) { if (!privateMap.has(receiver)) { throw new TypeError("attempted to " + action + " private field on non-instance"); } return privateMap.get(receiver); }
+
+function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+
+function isListener(listener) {
+  if (typeof listener === 'function') {
+    return true;
+  }
+
+  return false;
+}
+
+var pureObject = Object.create(null);
+
+var _events = /*#__PURE__*/new WeakMap();
+
+var _addListener = /*#__PURE__*/new WeakSet();
+
+var _removeListener = /*#__PURE__*/new WeakSet();
+
+var EventEmitter = /*#__PURE__*/function () {
+  function EventEmitter() {
+    _classCallCheck(this, EventEmitter);
+
+    _removeListener.add(this);
+
+    _addListener.add(this);
+
+    _events.set(this, {
+      writable: true,
+      value: pureObject
+    });
+  }
+
+  _createClass(EventEmitter, [{
+    key: "on",
+    value: function on(event, listener) {
+      _classPrivateMethodGet(this, _addListener, _addListener2).call(this, event, listener, false);
+
+      return this;
+    }
+  }, {
+    key: "once",
+    value: function once(event, listener) {
+      _classPrivateMethodGet(this, _addListener, _addListener2).call(this, event, listener, true);
+
+      return this;
+    }
+  }, {
+    key: "off",
+    value: function off(event, listener) {
+      _classPrivateMethodGet(this, _removeListener, _removeListener2).call(this, event, listener);
+
+      return this;
+    }
+  }, {
+    key: "offAll",
+    value: function offAll(event) {
+      if (event && _classPrivateFieldGet(this, _events)[event]) {
+        _classPrivateFieldGet(this, _events)[event] = [];
+      } else {
+        _classPrivateFieldSet(this, _events, pureObject);
+      }
+
+      return this;
+    }
+  }, {
+    key: "emit",
+    value: function emit(event) {
+      var listeners = _classPrivateFieldGet(this, _events)[event];
+
+      if (!listeners) return; // 倒叙遍历，不，我就不
+
+      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      for (var i = 0; i < listeners.length; i++) {
+        var listener = listeners[i];
+
+        if (!listener) {
+          continue;
+        }
+
+        listener.listener.apply(this, args); // TODO??
+
+        if (listener.once && _classPrivateMethodGet(this, _removeListener, _removeListener2).call(this, event, listener.listener)) {
+          i--;
+        }
+      }
+
+      return this;
+    }
+  }]);
+
+  return EventEmitter;
+}();
+
+exports.default = EventEmitter;
+
+function _addListener2(event, listener, once) {
+  if (!event || !listener) return false;
+
+  if (!isListener(listener)) {
+    throw new TypeError('listener must be a function');
+  }
+
+  var listeners = _classPrivateFieldGet(this, _events)[event] = _classPrivateFieldGet(this, _events)[event] || [];
+  listeners.push({
+    listener: listener,
+    once: once
+  });
+  return true;
+}
+
+function _removeListener2(event, listener) {
+  var listeners = _classPrivateFieldGet(this, _events)[event];
+
+  if (!listeners) return false;
+  var index = listeners.findIndex(function (l) {
+    return l.listener === listener;
+  }); // 如果不是 -1， ~-1 =  -(-1 + 1) = 0
+
+  if (~index) {
+    listeners.splice(index, 1);
+    return true;
+  }
+
+  return false;
+}
+},{}],"../../src/EventsMap.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _util = require("./util");
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classPrivateFieldGet(receiver, privateMap) { var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+
+function _classExtractFieldDescriptor(receiver, privateMap, action) { if (!privateMap.has(receiver)) { throw new TypeError("attempted to " + action + " private field on non-instance"); } return privateMap.get(receiver); }
+
+function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+
+var DEFAULT_OPTIONS = {
+  isSameOptions: _util.isSameStringifyObject,
+  isSameFunction: _util.isSameFunction
+};
+
+var _map = /*#__PURE__*/new WeakMap();
+
+var EvmEventsMap = /*#__PURE__*/function () {
+  function EvmEventsMap() {
+    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : DEFAULT_OPTIONS;
+
+    _classCallCheck(this, EvmEventsMap);
+
+    _defineProperty(this, "isSameOptions", void 0);
+
+    _defineProperty(this, "isSameFunction", void 0);
+
+    _map.set(this, {
+      writable: true,
+      value: new Map()
+    });
+
+    var opt = _objectSpread(_objectSpread({}, DEFAULT_OPTIONS), options);
+
+    this.isSameOptions = opt.isSameOptions;
+    this.isSameFunction = opt.isSameFunction;
+  }
+
+  _createClass(EvmEventsMap, [{
+    key: "getKeyFromTarget",
+    value:
+    /**
+     *
+     * @param target 被弱引用的对象
+     * @returns
+     */
+    function getKeyFromTarget(target) {
+      var keys = this.keys();
+      var index = keys.findIndex(function (wrKey) {
+        var key = wrKey.deref();
+        if (!key) return false;
+        return key === target;
+      });
+      return keys[index];
+    }
+  }, {
+    key: "keys",
+    value: function keys() {
+      return _toConsumableArray(_classPrivateFieldGet(this, _map).keys());
+    }
+    /**
+     * 添加
+     * @param target object或者 WeakRef(object)
+     * @param event 事件类型，比如message,click等
+     * @param listener 事件处理程序
+     */
+
+  }, {
+    key: "addListener",
+    value: function addListener(target, event, listener, options) {
+      var map = _classPrivateFieldGet(this, _map);
+
+      var t; // target 如果是 WeakRef, 直接使用
+
+      var wrTarget = target instanceof WeakRef ? target : this.getKeyFromTarget(target);
+
+      if (!wrTarget) {
+        wrTarget = new WeakRef(target);
+      }
+
+      t = _classPrivateFieldGet(this, _map).get(wrTarget);
+
+      if (!t) {
+        t = new Map();
+        map.set(wrTarget, t);
+      }
+
+      if (!t.has(event)) {
+        t.set(event, []);
+      }
+
+      var eventsInfo = t.get(event);
+
+      if (!eventsInfo) {
+        return this;
+      }
+
+      eventsInfo.push({
+        listener: new WeakRef(listener),
+        options: (0, _util.copyListenerOption)(options)
+      });
+      return this;
+    }
+    /**
+     * 添加
+     * @param target object或者 WeakRef(object)
+     * @param event 事件类型，比如message,click等
+     * @param listener 事件处理程序
+     */
+
+  }, {
+    key: "removeListener",
+    value: function removeListener(target, event, listener, options) {
+      var _this = this;
+
+      var map = _classPrivateFieldGet(this, _map);
+
+      var wrTarget = target instanceof WeakRef ? target : this.getKeyFromTarget(target);
+
+      if (!wrTarget) {
+        return console.error('EvmEventsMap:: remove failed, target is not found');
+      }
+
+      var t = map.get(wrTarget);
+
+      if (!t) {
+        return;
+      }
+
+      if (!t.has(event)) {
+        return console.error("EvmEventsMap:: remove failed, event (".concat(event, ") is not found"));
+      } // options 不能比同一个对象，比字符串的值
+
+
+      var eventsInfo = t.get(event);
+
+      if (!eventsInfo) {
+        return this;
+      }
+
+      var index = eventsInfo.findIndex(function (l) {
+        var fun = l.listener.deref();
+
+        if (!fun) {
+          return false;
+        }
+
+        return fun === listener && _this.isSameOptions(l.options, options);
+      });
+
+      if (index >= 0) {
+        eventsInfo.splice(index, 1);
+      }
+
+      var hasItem = eventsInfo.some(function (l) {
+        return l.listener.deref();
+      });
+
+      if (!hasItem) {
+        t.delete(event);
+      }
+
+      if (Object.keys(t).length === 0) {
+        map.delete(wrTarget);
+      }
+
+      return this;
+    }
+    /**
+     *
+     * @param wrTarget WeakRef(object)
+     * @returns
+     */
+
+  }, {
+    key: "remove",
+    value: function remove(wrTarget) {
+      return _classPrivateFieldGet(this, _map).delete(wrTarget);
+    }
+    /**
+     * 删除某个实例全部信息
+     * @param target  object
+     * @returns
+     */
+
+  }, {
+    key: "removeByTarget",
+    value: function removeByTarget(target) {
+      var wrTarget = this.getKeyFromTarget(target);
+
+      if (!wrTarget) {
+        return;
+      }
+
+      return _classPrivateFieldGet(this, _map).delete(wrTarget);
+    }
+    /**
+     * 删除某个实例的某个类别的全部信息
+     * @param target
+     * @param event
+     */
+
+  }, {
+    key: "removeEventsByTarget",
+    value: function removeEventsByTarget(target, event) {
+      var wrTarget = this.getKeyFromTarget(target);
+
+      if (!wrTarget) {
+        return;
+      }
+
+      var infos = _classPrivateFieldGet(this, _map).get(wrTarget);
+
+      if (!infos) {
+        return;
+      }
+
+      return infos.delete(event);
+    }
+    /**
+     *
+     * @param target  object
+     * @returns
+     */
+
+  }, {
+    key: "hasByTarget",
+    value: function hasByTarget(target) {
+      return !!this.getKeyFromTarget(target);
+    }
+    /**
+     *
+     * @param wrTarget WeakRef(object)
+     * @returns
+     */
+
+  }, {
+    key: "has",
+    value: function has(wrTarget) {
+      return _classPrivateFieldGet(this, _map).has(wrTarget);
+    }
+    /**
+     * 获取关联的事件信息信息
+     * @param target
+     * @returns
+     */
+
+  }, {
+    key: "getEventsObj",
+    value: function getEventsObj(target) {
+      var wrTarget = this.getKeyFromTarget(target);
+
+      if (!wrTarget) {
+        return null;
+      }
+
+      var eventsObj = _classPrivateFieldGet(this, _map).get(wrTarget);
+
+      return eventsObj;
+    }
+    /**
+     * 是有已经有listener
+     * @param target
+     * @param event
+     * @param listener
+     * @param options
+     * @returns
+     */
+
+  }, {
+    key: "hasListener",
+    value: function hasListener(target, event, listener, options) {
+      var _this2 = this;
+
+      var wrTarget = this.getKeyFromTarget(target);
+
+      if (!wrTarget) {
+        return false;
+      }
+
+      var t = _classPrivateFieldGet(this, _map).get(wrTarget);
+
+      if (!t) return false;
+      var wrListeners = t.get(event);
+
+      if (!Array.isArray(wrListeners)) {
+        return false;
+      }
+
+      return wrListeners.findIndex(function (lObj) {
+        var l = lObj.listener.deref();
+
+        if (!l) {
+          return false;
+        }
+
+        return l === listener && _this2.isSameOptions(options, lObj.options);
+      }) > -1;
+    }
+    /**
+     * 获取极可能是有问题的事件监听信息
+     * @param target
+     * @param event
+     * @param listener
+     * @param options
+     * @returns
+     */
+
+  }, {
+    key: "getExtremelyItems",
+    value: function getExtremelyItems(target, event, listener, options) {
+      var _this3 = this;
+
+      var eventsObj = this.getEventsObj(target);
+
+      if (!eventsObj) {
+        return null;
+      }
+
+      var listenerObjs = eventsObj.get(event);
+
+      if (!listenerObjs) {
+        return null;
+      }
+
+      var items = listenerObjs.filter(function (l) {
+        return _this3.isSameFunction(l.listener.deref(), listener, true) && _this3.isSameOptions(l.options, options);
+      });
+      return items;
+    }
+  }, {
+    key: "data",
+    get: function get() {
+      return _classPrivateFieldGet(this, _map);
+    }
+  }]);
+
+  return EvmEventsMap;
+}();
+
+exports.default = EvmEventsMap;
+},{"./util":"../../src/util.ts"}],"../../src/bindUtil.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.undoBind = undoBind;
+exports.doBind = doBind;
+exports.SymbolForBind = void 0;
+var oriBind,
+    isOverride = false,
+    oriToString;
+var symbolKey = "__xyz_symbol_key_zyx__(~!@#$%^&*()_+)__";
+var SymbolForBind = Symbol.for("".concat(symbolKey));
+exports.SymbolForBind = SymbolForBind;
+
+function undoBind() {
+  if (!isOverride) {
+    return;
+  }
+
+  delete oriBind[SymbolForBind];
+  Function.prototype.bind = oriBind;
+  Function.prototype.toString = oriToString;
+}
+
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+function doBind() {
+  oriBind = Function.prototype.bind;
+
+  if (hasOwnProperty.call(oriBind, SymbolForBind) || isOverride) {
+    return undoBind;
+  }
+
+  oriToString = Function.prototype.toString;
+
+  var overrideBind = function (oriBind) {
+    return function overrideBind() {
+      if (typeof this !== "function") {
+        throw new Error("必须是一个函数");
+      }
+
+      var fun;
+      fun = oriBind.apply(this, arguments);
+
+      if (hasOwnProperty.call(this, SymbolForBind)) {
+        fun[SymbolForBind] = this[SymbolForBind];
+      } else {
+        fun[SymbolForBind] = this;
+      }
+
+      return fun;
+    };
+  }(oriBind);
+
+  overrideBind[SymbolForBind] = true;
+  Function.prototype.bind = overrideBind;
+
+  Function.prototype.toString = function () {
+    if (hasOwnProperty.call(this, SymbolForBind)) {
+      return this[SymbolForBind].toString();
+    }
+
+    return oriToString.call(this);
+  };
+
+  isOverride = true;
+  return undoBind;
+}
+},{}],"../../src/BaseEvm.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _EventEmitter = _interopRequireDefault(require("./EventEmitter"));
+
+var _EventsMap = _interopRequireDefault(require("./EventsMap"));
+
+var _util = require("./util");
+
+var bindUtil = _interopRequireWildcard(require("./bindUtil"));
+
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+function _classPrivateFieldGet(receiver, privateMap) { var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+
+function _classExtractFieldDescriptor(receiver, privateMap, action) { if (!privateMap.has(receiver)) { throw new TypeError("attempted to " + action + " private field on non-instance"); } return privateMap.get(receiver); }
+
+function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+
+var DEFAULT_OPTIONS = {
+  /**
+   * 选项相同判断函数
+  */
+  isSameOptions: _util.isSameStringifyObject,
+
+  /**
+   * 白名单判断函数
+   */
+  isInWhiteList: _util.booleanFalse,
+  maxContentLength: 200,
+  overrideBind: false
+};
+var toString = Object.prototype.toString;
+
+var _listenerRegistry = /*#__PURE__*/new WeakMap();
+
+var _getListenerContent = /*#__PURE__*/new WeakSet();
+
+var _getListenerInfo = /*#__PURE__*/new WeakSet();
+
+var _getExtremelyListeners = /*#__PURE__*/new WeakSet();
+
+var EVM = /*#__PURE__*/function () {
+  function EVM() {
+    var _this = this;
+
+    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+    _classCallCheck(this, EVM);
+
+    _getExtremelyListeners.add(this);
+
+    _getListenerInfo.add(this);
+
+    _getListenerContent.add(this);
+
+    _defineProperty(this, "watched", false);
+
+    _defineProperty(this, "emitter", new _EventEmitter.default());
+
+    _defineProperty(this, "eventsMap", void 0);
+
+    _defineProperty(this, "options", void 0);
+
+    _listenerRegistry.set(this, {
+      writable: true,
+      value: new FinalizationRegistry(function (_ref) {
+        var weakRefTarget = _ref.weakRefTarget;
+        console.log("evm::clean up ------------------");
+
+        if (!weakRefTarget) {
+          return;
+        }
+
+        _this.eventsMap.remove(weakRefTarget);
+
+        console.log("length", _toConsumableArray(_this.eventsMap.data.keys()).length);
+      })
+    });
+
+    _defineProperty(this, "checkAndProxy", _util.checkAndProxy);
+
+    _defineProperty(this, "restoreProperties", _util.restoreProperties);
+
+    this.options = _objectSpread(_objectSpread({}, DEFAULT_OPTIONS), options);
+    this.eventsMap = new _EventsMap.default({
+      isSameOptions: this.options.isSameOptions
+    });
+    this.innerAddCallback = this.innerAddCallback.bind(this);
+    this.innerRemoveCallback = this.innerRemoveCallback.bind(this);
+  }
+
+  _createClass(EVM, [{
+    key: "innerAddCallback",
+    value: function innerAddCallback(target, event, listener, options) {
+      var isInWhiteList = this.options.isInWhiteList;
+
+      if (!isInWhiteList(target, event, listener, options)) {
+        return;
+      }
+
+      if (!(0, _util.isFunction)(listener)) {
+        return console.warn("EVM::innerAddCallback listener must be a function");
+      } // EventTarget  https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/addEventListener#multiple_identical_event_listeners
+      // 多次添加，覆盖
+
+
+      if ((0, _util.isObject)(target) && target instanceof EventTarget && this.eventsMap.hasListener(target, event, listener, options)) {
+        return console.log("EventTarget \u6CE8\u518C\u4E86\u591A\u4E2A\u76F8\u540C\u7684 EventListener\uFF0C \u591A\u4F59\u7684\u4E22\u5F03\uFF01".concat(toString.call(target), " ").concat(event, " ").concat(listener.name, " \u591A\u4F59\u7684\u4E22\u5F03"));
+      }
+
+      var eItems = this.eventsMap.getExtremelyItems(target, event, listener, options);
+
+      if (Array.isArray(eItems) && eItems.length > 0) {
+        console.warn("".concat(toString.call(target), "-").concat(target.constructor.name), " ExtremelyItems: type:", event, " name:" + (listener.name || "unknown"), " options: " + options, " content:" + listener.toString().slice(0, 100));
+      } // console.log("add:", Object.prototype.toString.call(target), event);
+
+
+      var weakRefTarget;
+
+      if (!this.eventsMap.hasByTarget(target)) {
+        weakRefTarget = new WeakRef(target);
+
+        _classPrivateFieldGet(this, _listenerRegistry).register(target, {
+          weakRefTarget: weakRefTarget
+        });
+      }
+
+      this.eventsMap.addListener(weakRefTarget ? weakRefTarget : target, event, listener, options); // this.#emitter.emit("on-add", ...argList);
+    }
+  }, {
+    key: "innerRemoveCallback",
+    value: function innerRemoveCallback(target, event, listener, options) {
+      var isInWhiteList = this.options.isInWhiteList;
+
+      if (!isInWhiteList(target, event, listener, options)) {
+        return;
+      }
+
+      if (!(0, _util.isFunction)(listener)) {
+        return console.warn("EVM::innerAddCallback listener must be a function");
+      }
+
+      if (!this.eventsMap.hasByTarget(target)) {
+        return;
+      } // console.log("remove:", Object.prototype.toString.call(target), event);
+
+
+      this.eventsMap.removeListener(target, event, listener, options); // this.#emitter.emit("on-remove", ...argList)
+    }
+    /**
+     * 检查属性，并产生代理
+     * @param prototype
+     * @param callback
+     * @param ckProperties
+     * @param proxyProperties
+     * @returns
+     */
+
+  }, {
+    key: "statistics",
+    value: function () {
+      var _statistics = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        var _this2 = this;
+
+        var _ref2,
+            _ref2$containsContent,
+            containsContent,
+            _ref2$forceGC,
+            forceGC,
+            data,
+            keys,
+            d,
+            _args = arguments;
+
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _ref2 = _args.length > 0 && _args[0] !== undefined ? _args[0] : {}, _ref2$containsContent = _ref2.containsContent, containsContent = _ref2$containsContent === void 0 ? false : _ref2$containsContent, _ref2$forceGC = _ref2.forceGC, forceGC = _ref2$forceGC === void 0 ? true : _ref2$forceGC;
+
+                if (!forceGC) {
+                  _context.next = 4;
+                  break;
+                }
+
+                _context.next = 4;
+                return (0, _util.executeGC)();
+
+              case 4:
+                data = this.data;
+                keys = _toConsumableArray(data.keys());
+                d = keys.map(function (wr) {
+                  var _el$constructor;
+
+                  var el = wr.deref();
+                  if (!el) return null;
+                  var events = data.get(wr);
+
+                  if (!events) {
+                    return (0, _util.createPureObject)();
+                  }
+
+                  return {
+                    constructor: el === null || el === void 0 ? void 0 : (_el$constructor = el.constructor) === null || _el$constructor === void 0 ? void 0 : _el$constructor.name,
+                    type: toString.call(el),
+                    // id: el.id,
+                    // class: el.className,
+                    events: _toConsumableArray(events.keys()).reduce(function (obj, cur) {
+                      var _events$get;
+
+                      var items = (_events$get = events.get(cur)) === null || _events$get === void 0 ? void 0 : _events$get.map(function (e) {
+                        var fn = e.listener.deref();
+                        if (!fn) return null;
+                        return _classPrivateMethodGet(_this2, _getListenerInfo, _getListenerInfo2).call(_this2, fn, containsContent);
+                      }).filter(Boolean);
+
+                      if (items && items.length > 0) {
+                        obj.set(cur, items);
+                      }
+
+                      return obj;
+                    }, new Map())
+                  };
+                });
+                return _context.abrupt("return", d);
+
+              case 8:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function statistics() {
+        return _statistics.apply(this, arguments);
+      }
+
+      return statistics;
+    }()
+  }, {
+    key: "getExtremelyItems",
+    value: function () {
+      var _getExtremelyItems = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+        var _this3 = this;
+
+        var forceGC,
+            data,
+            keys,
+            d,
+            _args2 = arguments;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                forceGC = _args2.length > 0 && _args2[0] !== undefined ? _args2[0] : true;
+
+                if (!forceGC) {
+                  _context2.next = 4;
+                  break;
+                }
+
+                _context2.next = 4;
+                return (0, _util.executeGC)();
+
+              case 4:
+                data = this.data;
+                keys = _toConsumableArray(data.keys());
+                d = keys.map(function (wr) {
+                  var _el$constructor2;
+
+                  var el = wr.deref();
+                  if (!el) return null;
+                  var eventsObj = data.get(wr);
+
+                  if (!eventsObj) {
+                    return (0, _util.createPureObject)();
+                  }
+
+                  var exItems;
+
+                  var events = _toConsumableArray(eventsObj.keys()).reduce(function (obj, cur) {
+                    exItems = _classPrivateMethodGet(_this3, _getExtremelyListeners, _getExtremelyListeners2).call(_this3, eventsObj.get(cur));
+
+                    if (exItems.length > 0) {
+                      obj.set(cur, exItems);
+                    }
+
+                    return obj; // 使用map而不适用Object，因为key可能是Symbol
+                  }, new Map());
+
+                  return _toConsumableArray(events.keys()).length > 0 ? (0, _util.createPureObject)({
+                    type: toString.call(el),
+                    constructor: el === null || el === void 0 ? void 0 : (_el$constructor2 = el.constructor) === null || _el$constructor2 === void 0 ? void 0 : _el$constructor2.name,
+                    // id: el.id,
+                    // class: el.className,
+                    events: events
+                  }) : null;
+                }).filter(Boolean);
+                return _context2.abrupt("return", d);
+
+              case 8:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function getExtremelyItems() {
+        return _getExtremelyItems.apply(this, arguments);
+      }
+
+      return getExtremelyItems;
+    }() // onAdd(fn: Function): void {
+    //   this.emitter.on("on-add", fn)
+    // }
+    // offAdd(fn: Function) {
+    //   this.emitter.off("on-add", fn)
+    // }
+    // onRemove(fn: Function) {
+    //   this.emitter.on("on-remove", fn)
+    // }
+    // offRemove(fn: Function) {
+    //   this.emitter.off("on-remove", fn)
+    // }
+    // onAlarm(fn: Function) {
+    //   this.emitter.on("on-alarm", fn)
+    // }
+    // offAlarm(fn: Function) {
+    //   this.emitter.off("on-alarm", fn)
+    // }
+
+  }, {
+    key: "watch",
+    value: function watch() {
+      if (this.watched) {
+        return console.error("watched");
+      }
+
+      if (this.options.overrideBind) {
+        bindUtil.doBind();
+      }
+
+      this.watched = true;
+    }
+  }, {
+    key: "cancel",
+    value: function cancel() {
+      this.watched = false;
+
+      if (this.options.overrideBind) {
+        bindUtil.undoBind();
+      }
+    }
+  }, {
+    key: "data",
+    get: function get() {
+      return this.eventsMap.data;
+    }
+  }, {
+    key: "removeByTarget",
+    value: function removeByTarget(target) {
+      this.eventsMap.removeByTarget(target);
+    }
+  }, {
+    key: "removeEventsByTarget",
+    value: function removeEventsByTarget(target, type) {
+      this.eventsMap.removeEventsByTarget(target, type);
+    }
+  }]);
+
+  return EVM;
+}();
+
+exports.default = EVM;
+
+function _getListenerContent2(listener) {
+  // const { maxContentLength } = this.options;
+  return listener.toString(); //.slice(0, maxContentLength)
+}
+
+function _getListenerInfo2(listener) {
+  var containsContent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+  var name = listener.name || "unkown";
+
+  if (!containsContent) {
+    return name;
+  }
+
+  return (0, _util.createPureObject)({
+    name: name,
+    content: _classPrivateMethodGet(this, _getListenerContent, _getListenerContent2).call(this, listener),
+    stack: (0, _util.getStack)(listener)
+  });
+}
+
+function _getExtremelyListeners2() {
+  var eventsInfo = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  var map = new Map();
+  var listener, listenerStr, listenerKeyStr;
+  var info;
+
+  for (var i = 0; i < eventsInfo.length; i++) {
+    info = 0;
+    var eInfo = eventsInfo[i];
+    listener = eInfo.listener.deref(); // 被回收了
+
+    if (!listener) {
+      continue;
+    } // 函数 + options
+
+
+    listenerStr = (0, _util.getFunctionContent)(listener);
+
+    if ((0, _util.isBuiltinFunctionContent)(listenerStr)) {
+      continue;
+    } // TODO::  improve
+
+
+    listenerKeyStr = listenerStr + " %s----%s ".concat(JSON.stringify(eInfo.options)); // console.log("listenerKeyStr:", listenerKeyStr);
+
+    info = map.get(listenerKeyStr);
+
+    if (!info) {
+      map.set(listenerKeyStr, _objectSpread(_objectSpread({}, _classPrivateMethodGet(this, _getListenerInfo, _getListenerInfo2).call(this, listener, true)), {}, {
+        count: 1,
+        options: eInfo.options
+      }));
+    } else {
+      info.count++;
+    }
+  }
+
+  return _toConsumableArray(map.values()).filter(function (v) {
+    return v.count > 1;
+  });
+}
+},{"./EventEmitter":"../../src/EventEmitter.ts","./EventsMap":"../../src/EventsMap.ts","./util":"../../src/util.ts","./bindUtil":"../../src/bindUtil.ts"}],"../../src/evm/ETarget.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _BaseEvm2 = _interopRequireDefault(require("../BaseEvm"));
+
+var _util = require("../util");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classPrivateFieldGet(receiver, privateMap) { var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+
+function _classExtractFieldDescriptor(receiver, privateMap, action) { if (!privateMap.has(receiver)) { throw new TypeError("attempted to " + action + " private field on non-instance"); } return privateMap.get(receiver); }
+
+function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+
+function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+var DEFAULT_OPTIONS = {
+  isInWhiteList: _util.booleanFalse,
+  isSameOptions: _util.isSameETOptions
+};
+var ADD_PROPERTIES = ["addEventListener"];
+var REMOVE_PROPERTIES = ["removeEventListener"];
+/**
+ * EVM for EventTarget
+ */
+
+var _getListener = /*#__PURE__*/new WeakSet();
+
+var _innerAddCallback = /*#__PURE__*/new WeakMap();
+
+var _innerRemoveCallback = /*#__PURE__*/new WeakMap();
+
+var ETargetEVM = /*#__PURE__*/function (_BaseEvm) {
+  _inherits(ETargetEVM, _BaseEvm);
+
+  var _super = _createSuper(ETargetEVM);
+
+  function ETargetEVM() {
+    var _thisSuper, _thisSuper2, _this;
+
+    var _options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : DEFAULT_OPTIONS;
+
+    var et = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : EventTarget;
+
+    _classCallCheck(this, ETargetEVM);
+
+    _this = _super.call(this, _objectSpread(_objectSpread({}, DEFAULT_OPTIONS), _options));
+
+    _getListener.add(_assertThisInitialized(_this));
+
+    _defineProperty(_assertThisInitialized(_this), "orgEtPrototype", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "rpList", []);
+
+    _defineProperty(_assertThisInitialized(_this), "et", void 0);
+
+    _innerAddCallback.set(_assertThisInitialized(_this), {
+      writable: true,
+      value: function value(target, event, listener, options) {
+        var fn = _classPrivateMethodGet(_assertThisInitialized(_this), _getListener, _getListener2).call(_assertThisInitialized(_this), listener);
+
+        if (!(0, _util.isFunction)(fn)) {
+          return;
+        }
+
+        return _get((_thisSuper = _assertThisInitialized(_this), _getPrototypeOf(ETargetEVM.prototype)), "innerAddCallback", _thisSuper).call(_thisSuper, target, event, fn, options);
+      }
+    });
+
+    _innerRemoveCallback.set(_assertThisInitialized(_this), {
+      writable: true,
+      value: function value(target, event, listener, options) {
+        var fn = _classPrivateMethodGet(_assertThisInitialized(_this), _getListener, _getListener2).call(_assertThisInitialized(_this), listener);
+
+        if (!(0, _util.isFunction)(fn)) {
+          return;
+        }
+
+        return _get((_thisSuper2 = _assertThisInitialized(_this), _getPrototypeOf(ETargetEVM.prototype)), "innerRemoveCallback", _thisSuper2).call(_thisSuper2, target, event, fn, options);
+      }
+    });
+
+    if (et == null || !(0, _util.isObject)(et.prototype)) {
+      throw new Error("参数et的原型必须是一个有效的对象");
+    }
+
+    _this.orgEtPrototype = _objectSpread({}, et);
+    _this.et = et;
+    return _this;
+  }
+
+  _createClass(ETargetEVM, [{
+    key: "watch",
+    value: function watch() {
+      var _this2 = this;
+
+      _get(_getPrototypeOf(ETargetEVM.prototype), "watch", this).call(this);
+
+      var rp; // addEventListener 
+
+      rp = this.checkAndProxy(this.et.prototype, _classPrivateFieldGet(this, _innerAddCallback), ADD_PROPERTIES);
+
+      if (rp !== null) {
+        this.rpList.push(rp);
+      } // removeEventListener
+
+
+      rp = this.checkAndProxy(this.et.prototype, _classPrivateFieldGet(this, _innerRemoveCallback), REMOVE_PROPERTIES);
+
+      if (rp !== null) {
+        this.rpList.push(rp);
+      }
+
+      return function () {
+        return _this2.cancel();
+      };
+    }
+  }, {
+    key: "cancel",
+    value: function cancel() {
+      _get(_getPrototypeOf(ETargetEVM.prototype), "cancel", this).call(this);
+
+      this.restoreProperties(this.et.prototype, this.orgEtPrototype, ADD_PROPERTIES);
+      this.restoreProperties(this.et.prototype, this.orgEtPrototype, REMOVE_PROPERTIES);
+      this.rpList.forEach(function (rp) {
+        return rp.revoke();
+      });
+      this.rpList = [];
+    }
+  }]);
+
+  return ETargetEVM;
+}(_BaseEvm2.default);
+
+exports.default = ETargetEVM;
+
+function _getListener2(listener) {
+  if (typeof listener == "function") {
+    return listener;
+  }
+
+  return null;
+}
+},{"../BaseEvm":"../../src/BaseEvm.ts","../util":"../../src/util.ts"}],"../../src/evm/Events.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _BaseEvm2 = _interopRequireDefault(require("../BaseEvm"));
+
+var _util = require("../util");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classPrivateFieldGet(receiver, privateMap) { var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+
+function _classExtractFieldDescriptor(receiver, privateMap, action) { if (!privateMap.has(receiver)) { throw new TypeError("attempted to " + action + " private field on non-instance"); } return privateMap.get(receiver); }
+
+function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+
+function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+var DEFAULT_OPTIONS = {
+  isInWhiteList: _util.booleanTrue
+};
+var ADD_PROPERTIES = ["addListener", "addEventListener", "on", "prependListener"];
+var REMOVE_PROPERTIES = ["removeListener", "removeEventListener", "off"];
+/**
+ * EVM for events
+*/
+
+var _getListener = /*#__PURE__*/new WeakSet();
+
+var _innerAddCallback = /*#__PURE__*/new WeakMap();
+
+var _innerRemoveCallback = /*#__PURE__*/new WeakMap();
+
+var EventsEVM = /*#__PURE__*/function (_BaseEvm) {
+  _inherits(EventsEVM, _BaseEvm);
+
+  var _super = _createSuper(EventsEVM);
+
+  function EventsEVM() {
+    var _thisSuper, _thisSuper2, _this;
+
+    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : DEFAULT_OPTIONS;
+    var et = arguments.length > 1 ? arguments[1] : undefined;
+
+    _classCallCheck(this, EventsEVM);
+
+    _this = _super.call(this, _objectSpread(_objectSpread({}, DEFAULT_OPTIONS), options));
+
+    _getListener.add(_assertThisInitialized(_this));
+
+    _defineProperty(_assertThisInitialized(_this), "orgEtPrototype", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "rpList", []);
+
+    _defineProperty(_assertThisInitialized(_this), "et", void 0);
+
+    _innerAddCallback.set(_assertThisInitialized(_this), {
+      writable: true,
+      value: function value(target, event, listener) {
+        var fn = _classPrivateMethodGet(_assertThisInitialized(_this), _getListener, _getListener2).call(_assertThisInitialized(_this), listener);
+
+        if (!(0, _util.isFunction)(fn)) {
+          return;
+        }
+
+        return _get((_thisSuper = _assertThisInitialized(_this), _getPrototypeOf(EventsEVM.prototype)), "innerAddCallback", _thisSuper).call(_thisSuper, target, event, fn, undefined);
+      }
+    });
+
+    _innerRemoveCallback.set(_assertThisInitialized(_this), {
+      writable: true,
+      value: function value(target, event, listener) {
+        var fn = _classPrivateMethodGet(_assertThisInitialized(_this), _getListener, _getListener2).call(_assertThisInitialized(_this), listener);
+
+        if (!(0, _util.isFunction)(fn)) {
+          return;
+        }
+
+        return _get((_thisSuper2 = _assertThisInitialized(_this), _getPrototypeOf(EventsEVM.prototype)), "innerRemoveCallback", _thisSuper2).call(_thisSuper2, target, event, fn, undefined);
+      }
+    });
+
+    if (et == null || !(0, _util.isObject)(et.prototype)) {
+      throw new Error("参数et的原型必须是一个有效的对象");
+    }
+
+    _this.orgEtPrototype = _objectSpread({}, et);
+    _this.et = et;
+    return _this;
+  }
+
+  _createClass(EventsEVM, [{
+    key: "watch",
+    value: function watch() {
+      var _this2 = this;
+
+      _get(_getPrototypeOf(EventsEVM.prototype), "watch", this).call(this);
+
+      var rp; // addListener addEventListener on prependListener
+
+      rp = this.checkAndProxy(this.et.prototype, _classPrivateFieldGet(this, _innerAddCallback), ADD_PROPERTIES);
+
+      if (rp !== null) {
+        this.rpList.push(rp);
+      } // removeListener removeEventListener off
+
+
+      rp = this.checkAndProxy(this.et.prototype, _classPrivateFieldGet(this, _innerRemoveCallback), REMOVE_PROPERTIES);
+
+      if (rp !== null) {
+        this.rpList.push(rp);
+      }
+
+      return function () {
+        return _this2.cancel();
+      };
+    }
+  }, {
+    key: "cancel",
+    value: function cancel() {
+      _get(_getPrototypeOf(EventsEVM.prototype), "cancel", this).call(this);
+
+      this.restoreProperties(this.et.prototype, this.orgEtPrototype, ADD_PROPERTIES);
+      this.restoreProperties(this.et.prototype, this.orgEtPrototype, REMOVE_PROPERTIES);
+      this.rpList.forEach(function (rp) {
+        return rp.revoke();
+      });
+      this.rpList = [];
+    }
+  }]);
+
+  return EventsEVM;
+}(_BaseEvm2.default);
+
+exports.default = EventsEVM;
+
+function _getListener2(listener) {
+  //?? isFunction
+  if (typeof listener == "function") {
+    return listener;
+  }
+
+  if ((0, _util.isObject)(listener) && (0, _util.isFunction)(listener.listener)) {
+    return listener.listener;
+  }
+
+  return null;
+}
+},{"../BaseEvm":"../../src/BaseEvm.ts","../util":"../../src/util.ts"}],"../../src/evm/CEvents.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _BaseEvm2 = _interopRequireDefault(require("../BaseEvm"));
+
+var _util = require("../util");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classPrivateFieldGet(receiver, privateMap) { var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+
+function _classExtractFieldDescriptor(receiver, privateMap, action) { if (!privateMap.has(receiver)) { throw new TypeError("attempted to " + action + " private field on non-instance"); } return privateMap.get(receiver); }
+
+function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+
+function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+var DEFAULT_OPTIONS = {
+  isInWhiteList: _util.booleanTrue
+};
+var ADD_PROPERTIES = ["addEventListener", "on"];
+var REMOVE_PROPERTIES = ["removeEventListener", "removeAllListeners", "removeListener", "off"];
+/**
+ * EVM for component-emitter
+ */
+
+var _getListener = /*#__PURE__*/new WeakSet();
+
+var _innerAddCallback = /*#__PURE__*/new WeakMap();
+
+var _innerRemoveCallback = /*#__PURE__*/new WeakMap();
+
+var CEventsEVM = /*#__PURE__*/function (_BaseEvm) {
+  _inherits(CEventsEVM, _BaseEvm);
+
+  var _super = _createSuper(CEventsEVM);
+
+  function CEventsEVM() {
+    var _thisSuper, _thisSuper2, _thisSuper3, _thisSuper4, _this;
+
+    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : DEFAULT_OPTIONS;
+    var et = arguments.length > 1 ? arguments[1] : undefined;
+
+    _classCallCheck(this, CEventsEVM);
+
+    _this = _super.call(this, _objectSpread(_objectSpread({}, DEFAULT_OPTIONS), options));
+
+    _getListener.add(_assertThisInitialized(_this));
+
+    _defineProperty(_assertThisInitialized(_this), "orgEtPrototype", void 0);
+
+    _defineProperty(_assertThisInitialized(_this), "rpList", []);
+
+    _defineProperty(_assertThisInitialized(_this), "et", void 0);
+
+    _innerAddCallback.set(_assertThisInitialized(_this), {
+      writable: true,
+      value: function value(target, event, listener) {
+        var fn = _classPrivateMethodGet(_assertThisInitialized(_this), _getListener, _getListener2).call(_assertThisInitialized(_this), listener);
+
+        if (!(0, _util.isFunction)(fn)) {
+          return;
+        }
+
+        return _get((_thisSuper = _assertThisInitialized(_this), _getPrototypeOf(CEventsEVM.prototype)), "innerAddCallback", _thisSuper).call(_thisSuper, target, event, fn, undefined);
+      }
+    });
+
+    _innerRemoveCallback.set(_assertThisInitialized(_this), {
+      writable: true,
+      value: function value(target, event, listener) {
+        // 没有event的时候，表示全部删除
+        if (event === undefined) {
+          return _get((_thisSuper2 = _assertThisInitialized(_this), _getPrototypeOf(CEventsEVM.prototype)), "removeByTarget", _thisSuper2).call(_thisSuper2, target);
+        } // 没有listener，表示删除一个类别
+
+
+        if (listener === undefined) {
+          return _get((_thisSuper3 = _assertThisInitialized(_this), _getPrototypeOf(CEventsEVM.prototype)), "removeEventsByTarget", _thisSuper3).call(_thisSuper3, target, event);
+        }
+
+        var fn = _classPrivateMethodGet(_assertThisInitialized(_this), _getListener, _getListener2).call(_assertThisInitialized(_this), listener);
+
+        if (!(0, _util.isFunction)(fn)) {
+          return;
+        }
+
+        return _get((_thisSuper4 = _assertThisInitialized(_this), _getPrototypeOf(CEventsEVM.prototype)), "innerRemoveCallback", _thisSuper4).call(_thisSuper4, target, event, fn, undefined);
+      }
+    });
+
+    if (et == null || !(0, _util.isObject)(et.prototype)) {
+      throw new Error("参数et的原型必须是一个有效的对象");
+    }
+
+    _this.orgEtPrototype = _objectSpread({}, et.prototype);
+    _this.et = et;
+    return _this;
+  }
+
+  _createClass(CEventsEVM, [{
+    key: "watch",
+    value: function watch() {
+      var _this2 = this;
+
+      _get(_getPrototypeOf(CEventsEVM.prototype), "watch", this).call(this);
+
+      var rp; // addListener addEventListener on prependListener
+
+      rp = this.checkAndProxy(this.et.prototype, _classPrivateFieldGet(this, _innerAddCallback), ADD_PROPERTIES);
+
+      if (rp !== null) {
+        this.rpList.push(rp);
+      } // removeListener removeEventListener off
+
+
+      rp = this.checkAndProxy(this.et.prototype, _classPrivateFieldGet(this, _innerRemoveCallback), REMOVE_PROPERTIES);
+
+      if (rp !== null) {
+        this.rpList.push(rp);
+      }
+
+      return function () {
+        return _this2.cancel();
+      };
+    }
+  }, {
+    key: "cancel",
+    value: function cancel() {
+      _get(_getPrototypeOf(CEventsEVM.prototype), "cancel", this).call(this);
+
+      this.restoreProperties(this.et.prototype, this.orgEtPrototype, ADD_PROPERTIES);
+      this.restoreProperties(this.et.prototype, this.orgEtPrototype, REMOVE_PROPERTIES);
+      this.rpList.forEach(function (rp) {
+        return rp.revoke();
+      });
+      this.rpList = [];
+    }
+  }]);
+
+  return CEventsEVM;
+}(_BaseEvm2.default);
+
+exports.default = CEventsEVM;
+
+function _getListener2(listener) {
+  //?? isFunction
+  if (typeof listener == "function") {
+    return listener;
+  }
+
+  if ((0, _util.isObject)(listener) && (0, _util.isFunction)(listener.listener)) {
+    return listener.listener;
+  }
+
+  return null;
+}
+},{"../BaseEvm":"../../src/BaseEvm.ts","../util":"../../src/util.ts"}],"../../src/ui/util.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createEle = exports.$$ = exports.$ = void 0;
+
+var $ = function $(selector) {
+  return document.querySelector(selector);
+};
+
+exports.$ = $;
+
+var $$ = function $$(selector) {
+  return document.querySelectorAll(selector);
+};
+
+exports.$$ = $$;
+
+var createEle = function createEle(tagName) {
+  var properties = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var el = document.createElement(tagName);
+
+  for (var k in properties) {
+    el.setAttribute(k, properties[k]);
+  }
+
+  return el;
+};
+
+exports.createEle = createEle;
+},{}],"../../src/ui/UIRender.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _util = require("./util");
+
+var _util2 = require("../util");
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classPrivateFieldGet(receiver, privateMap) { var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+
+function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+
+function _classPrivateFieldSet(receiver, privateMap, value) { var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "set"); _classApplyDescriptorSet(receiver, descriptor, value); return value; }
+
+function _classExtractFieldDescriptor(receiver, privateMap, action) { if (!privateMap.has(receiver)) { throw new TypeError("attempted to " + action + " private field on non-instance"); } return privateMap.get(receiver); }
+
+function _classApplyDescriptorSet(receiver, descriptor, value) { if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } }
+
+var _working = /*#__PURE__*/new WeakMap();
+
+var _root = /*#__PURE__*/new WeakMap();
+
+var UIRender = /*#__PURE__*/function () {
+  function UIRender(evm) {
+    _classCallCheck(this, UIRender);
+
+    _working.set(this, {
+      writable: true,
+      value: true
+    });
+
+    _root.set(this, {
+      writable: true,
+      value: void 0
+    });
+
+    _defineProperty(this, "evm", void 0);
+
+    this.evm = evm;
+  }
+
+  _createClass(UIRender, [{
+    key: "initContainer",
+    value: function initContainer() {
+      _classPrivateFieldSet(this, _root, (0, _util.createEle)("div", {
+        class: "_evm_root_"
+      }));
+
+      document.body.appendChild(_classPrivateFieldGet(this, _root));
+    }
+  }, {
+    key: "render",
+    value: function () {
+      var _render = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        var data;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return this.getData();
+
+              case 2:
+                data = _context.sent;
+                console.log("i am rendering", data);
+
+              case 4:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function render() {
+        return _render.apply(this, arguments);
+      }
+
+      return render;
+    }()
+  }, {
+    key: "schedule",
+    value: function () {
+      var _schedule = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+        var d;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                if (_classPrivateFieldGet(this, _working)) {
+                  _context2.next = 2;
+                  break;
+                }
+
+                return _context2.abrupt("return");
+
+              case 2:
+                d = (0, _util2.delay)(undefined, 3000);
+                _context2.next = 5;
+                return d.run();
+
+              case 5:
+                this.render();
+                this.schedule();
+
+              case 7:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function schedule() {
+        return _schedule.apply(this, arguments);
+      }
+
+      return schedule;
+    }()
+  }, {
+    key: "getData",
+    value: function () {
+      var _getData = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+        var data;
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.next = 2;
+                return (0, _util2.executeGC)();
+
+              case 2:
+                data = Object.create(null);
+
+                if (!this.evm.cEvents) {
+                  _context3.next = 7;
+                  break;
+                }
+
+                _context3.next = 6;
+                return this.evm.cEvents.getExtremelyItems();
+
+              case 6:
+                data["cEvents"] = _context3.sent;
+
+              case 7:
+                if (!this.evm.eTarget) {
+                  _context3.next = 11;
+                  break;
+                }
+
+                _context3.next = 10;
+                return this.evm.eTarget.getExtremelyItems();
+
+              case 10:
+                data["eTarget"] = _context3.sent;
+
+              case 11:
+                if (!this.evm.events) {
+                  _context3.next = 15;
+                  break;
+                }
+
+                _context3.next = 14;
+                return this.evm.events.getExtremelyItems();
+
+              case 14:
+                data["events"] = _context3.sent;
+
+              case 15:
+                return _context3.abrupt("return", data);
+
+              case 16:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
+
+      function getData() {
+        return _getData.apply(this, arguments);
+      }
+
+      return getData;
+    }()
+  }]);
+
+  return UIRender;
+}();
+
+exports.default = UIRender;
+},{"./util":"../../src/ui/util.ts","../util":"../../src/util.ts"}],"../../src/index.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createAllEVM = createAllEVM;
+exports.default = install;
+exports.BaseEvm = exports.CEventsEVM = exports.EventsEVM = exports.ETargetEVM = void 0;
+
+var _util = require("./util");
+
+var _BaseEvm = _interopRequireDefault(require("./BaseEvm"));
+
+var _ETarget = _interopRequireDefault(require("./evm/ETarget"));
+
+var _Events = _interopRequireDefault(require("./evm/Events"));
+
+var _CEvents = _interopRequireDefault(require("./evm/CEvents"));
+
+var _UIRender = _interopRequireDefault(require("./ui/UIRender"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ETargetEVM = _ETarget.default;
+exports.ETargetEVM = ETargetEVM;
+var EventsEVM = _Events.default;
+exports.EventsEVM = EventsEVM;
+var CEventsEVM = _CEvents.default;
+exports.CEventsEVM = CEventsEVM;
+var BaseEvm = _BaseEvm.default;
+exports.BaseEvm = BaseEvm;
+
+function createAllEVM() {
+  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var obj = Object.create(null);
+
+  if ((0, _util.isObject)(options.cEvents)) {
+    var _options$cEvents;
+
+    obj["cEvents"] = new CEventsEVM(options.cEvents, (_options$cEvents = options.cEvents) === null || _options$cEvents === void 0 ? void 0 : _options$cEvents.et);
+  }
+
+  if ((0, _util.isObject)(options.eTarget)) {
+    var _options$eTarget;
+
+    obj["eTarget"] = new ETargetEVM(options.eTarget, (_options$eTarget = options.eTarget) === null || _options$eTarget === void 0 ? void 0 : _options$eTarget.et);
+  }
+
+  if ((0, _util.isObject)(options.events)) {
+    var _options$events;
+
+    obj["events"] = new EventsEVM(options.events, (_options$events = options.events) === null || _options$events === void 0 ? void 0 : _options$events.et);
+  }
+
+  return obj;
+}
+
+function install() {
+  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var evm = createAllEVM(options.evmOptions);
+
+  function start() {
+    console.log("evm started");
+  }
+
+  if (options.render) {
+    return {
+      render: new options.render(evm),
+      evm: evm,
+      start: start
+    };
+  }
+
+  return {
+    render: new _UIRender.default(evm),
+    evm: evm,
+    start: start
+  };
+}
+},{"./util":"../../src/util.ts","./BaseEvm":"../../src/BaseEvm.ts","./evm/ETarget":"../../src/evm/ETarget.ts","./evm/Events":"../../src/evm/Events.ts","./evm/CEvents":"../../src/evm/CEvents.ts","./ui/UIRender":"../../src/ui/UIRender.ts"}],"index.jsx":[function(require,module,exports) {
 "use strict";
 
 var _reactDom = _interopRequireDefault(require("react-dom"));
@@ -29978,14 +32426,21 @@ var _react = _interopRequireDefault(require("react"));
 
 var _App = _interopRequireDefault(require("./App"));
 
+var _index = _interopRequireDefault(require("../../src/index"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-window.__evm_ready__ ? render() : setTimeout(render, 3000);
+var evm = (0, _index.default)({
+  evmOptions: {
+    eTarget: {}
+  }
+});
+evm.start();
 
 function render() {
   _reactDom.default.render( /*#__PURE__*/_react.default.createElement(_App.default, null), document.getElementById("root"));
 }
-},{"react-dom":"node_modules/react-dom/index.js","react":"node_modules/react/index.js","./App":"App.jsx"}],"node_modules/_parcel-bundler@1.12.5@parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"react-dom":"node_modules/react-dom/index.js","react":"node_modules/react/index.js","./App":"App.jsx","../../src/index":"../../src/index.ts"}],"node_modules/_parcel-bundler@1.12.5@parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -30013,7 +32468,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62210" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60668" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

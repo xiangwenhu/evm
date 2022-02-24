@@ -56,7 +56,8 @@ export interface ListenerWrapper {
 }
 
 export interface StatisticsOptions {
-    containsContent?: boolean
+    containsContent?: boolean;
+    forceGC?: boolean;
 }
 
 export interface EvmEventsMapOptions {
@@ -66,3 +67,19 @@ export interface EvmEventsMapOptions {
 
 
 export type EventType = string | Symbol | number;
+
+type EVMOptions = BaseEvmOptions & {
+    et?: Object
+}
+
+export interface CreateOptions {
+    events?: EVMOptions,
+    cEvents?: EVMOptions,
+    eTarget?: EVMOptions
+}
+
+export enum EnumEVMType {
+    events = "events",
+    cEvents = "cEvents",
+    eTarget = "eTarget"
+}

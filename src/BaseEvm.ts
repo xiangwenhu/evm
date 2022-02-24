@@ -2,7 +2,7 @@
 import EventEmitter from "./EventEmitter";
 import EvmEventsMap from "./EventsMap";
 import { BaseEvmOptions, EventsMapItem, EventType, StatisticsOptions, TypeListenerOptions } from "./types";
-import { booleanFalse, isSameStringifyObject, checkAndProxy, createPureObject, delay, getFunctionContent, isBuiltinFunctionContent, isFunction, isObject, restoreProperties, getStack } from "./util";
+import { booleanFalse, isSameStringifyObject, checkAndProxy, createPureObject, delay, getFunctionContent, isBuiltinFunctionContent, isFunction, isObject, restoreProperties, getStack, executeGC } from "./util";
 import * as bindUtil from "./bindUtil"
 
 const DEFAULT_OPTIONS: BaseEvmOptions = {
@@ -125,17 +125,7 @@ export default class EVM<O = any>{
    */
   protected restoreProperties = restoreProperties;
 
-  protected async gc() {
 
-    var globalThat = globalThis as any;
-    if (typeof globalThat !== 'undefined' && isFunction(globalThat.gc)) {
-      globalThat.gc();
-    }
-
-    const { run } = delay(undefined, 1000);
-
-    await run();
-  }
 
   #getListenerContent(listener: Function) {
     // const { maxContentLength } = this.options;
@@ -147,16 +137,21 @@ export default class EVM<O = any>{
     if (!containsContent) {
       return name;
     }
-    return createPureObject({ 
-      name, 
+    return createPureObject({
+      name,
       content: this.#getListenerContent(listener),
       stack: getStack(listener)
     }) as Record<string, any>;
   }
 
-  async statistics({ containsContent = false }: StatisticsOptions = {}) {
+  async statistics({
+    containsContent = false,
+    forceGC = true,
+  }: StatisticsOptions = {}) {
 
-    await this.gc();
+    if (forceGC) {
+      await executeGC()
+    }
 
     const data = this.data;
     const keys = [...data.keys()];
@@ -227,9 +222,11 @@ export default class EVM<O = any>{
     return [...map.values()].filter(v => v.count > 1);
   }
 
-  async getExtremelyItems() {
+  async getExtremelyItems(forceGC: boolean = true) {
 
-    await this.gc();
+    if (forceGC) {
+      await executeGC();
+    }
 
     const data = this.data;
     const keys = [...data.keys()];

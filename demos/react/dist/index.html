@@ -11,36 +11,6 @@
 <body>
 
     <div id="root"></div>
-    <script type="module">
-        import EVM from "http://192.168.13.96:8080/V4/etevm.mjs";
-
-        const wp = new WeakMap();
-        const evm = new EVM({
-            isInWhiteList(target, event, listener, options) {
-                if (target === window && event === "error") {
-                    return false;
-                }
-
-                if (target.id === "btn1" || [window, document].includes(target)) {
-                    return true
-                }
-                return false;
-            }
-        });
-        evm.watch();
-
-        setInterval(async function  () {
-            // console.log("-------");
-            const data = await evm.statistics();
-            console.log("statistics:", data);
-        }, 5000)
-
-
-        window.__evm_ready__ = true;
-        window.__evm__ = evm;
-
-        // 次代码执行会慢于后面的代码执行
-    </script>
     <script src="/react.78399e21.js"></script>
 </body>
 
