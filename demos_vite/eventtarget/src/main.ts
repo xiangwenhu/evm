@@ -1,20 +1,10 @@
 import './style.css'
+import "./evm";
+import "./events";
+
 const app = document.querySelector<HTMLDivElement>('#app')!
 
-import install from "../../../src/index";
-import { EventType, TypeListenerOptions } from '../../../src/types';
 
-const evm = install({
-  evmOptions: {
-    eTarget: {
-      isInWhiteList(target: any, event: EventType, listener: Function, options: TypeListenerOptions) {
-        return target.id === "btn1"
-      }
-    }
-  }
-});
-
-evm.start();
 
 const btn1El: HTMLButtonElement = document.getElementById("btn1") as HTMLButtonElement;
 

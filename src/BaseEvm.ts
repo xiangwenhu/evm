@@ -241,7 +241,7 @@ export default class EVM<O = any>{
       }
 
       let exItems: EventsMapItem[];
-      const events = [...eventsObj.keys()].reduce((obj, cur: EventType) => {
+      const eventsMap = [...eventsObj.keys()].reduce((obj, cur: EventType) => {
         exItems = this.#getExtremelyListeners(eventsObj.get(cur));
         if (exItems.length > 0) {
           obj.set(cur, exItems);
@@ -251,9 +251,20 @@ export default class EVM<O = any>{
         // 使用map而不适用Object，因为key可能是Symbol
       }, new Map());
 
-      return [...events.keys()].length > 0 ? createPureObject({
+      const events = [...eventsMap.keys()].reduce((evs, key) => {
+        const arr = eventsMap.get(key) || [];
+        evs.push(...arr.map((ev: any) => {
+          ev.key = key;
+          return ev;
+        }));
+        return evs;
+      }, [])
+
+
+      return events.length > 0 ? createPureObject({
         type: toString.call(el),
         constructor: el?.constructor?.name,
+        key: events[0].key,
         // id: el.id,
         // class: el.className,
         events
