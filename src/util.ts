@@ -345,10 +345,32 @@ export function isSameETOptions(options1: boolean | AddEventListenerOptions = {
     capture: false
 }): boolean {
 
-  
     const opt1 = getAddEventListenerOptions(options1);
     const opt2 = getAddEventListenerOptions(options2);
+    return opt1.capture === opt2.capture;
+}
 
-    return opt1.capture === opt2.capture
+export function isStrict(this: any) {
+    return this === undefined;
+};
 
+const regexpUseStrict = /^function[^(]*\([^)]*\)\s*\{\s*(["'])use strict\1/
+export function isFunctionStrict(fn: Function){
+    return regexpUseStrict.test(fn.toString())
+}
+
+export function getStack(fn: Function): string[] {
+    const stacks: string[] = [];
+
+    // 严格模式
+    if (isStrict() || isFunctionStrict(fn)) {
+        return stacks;
+    }
+    stacks.unshift(`function ${fn.name}`);
+    let caller = fn.caller;
+    while (caller) {
+        stacks.unshift(`function ${caller.name}`);
+        caller = caller.caller;
+    }
+    return stacks;
 }
