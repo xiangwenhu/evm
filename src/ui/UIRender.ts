@@ -6,6 +6,7 @@ import { delay, executeGC } from "../util";
 
 const cssText = `
 ._evm_root_{
+    z-index: 99999;
     font-size: 12px;
     height: 500px;
     overflow-y:auto;
@@ -35,7 +36,7 @@ const cssText = `
 .evm-table td, .evm-table th {
     padding: 5px 10px;
     font-size: 12px;
-    color: rgb(149, 170, 109);
+    color: red;
 }
 
 .evm-table tr:nth-child(even) {
