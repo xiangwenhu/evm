@@ -16,3 +16,7 @@ const evm = install({
 });
 
 evm.start();
+
+document.getElementById('btnRender')?.addEventListener("click", function(){
+    evm.render.render();
+})
