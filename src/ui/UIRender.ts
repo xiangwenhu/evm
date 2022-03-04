@@ -8,11 +8,13 @@ const cssText = `
 ._evm_root_{
     z-index: 99999;
     font-size: 12px;
-    height: 500px;
+    max-width: 100%;
+    max-height:  500px;
     overflow-y:auto;
     position:fixed;
     top: 10px;
-    right: 10px
+    right: 10px;
+    background-color: #FFF;
 }
 
 ._evm_controls div{
@@ -74,9 +76,11 @@ export default class UIRender {
 
     initContainer() {
         this.#root = createEle("div", {
-            class: "_evm_root_"
+            class: "_evm_root_",
+            draggable: "true",
         });
         document.body.appendChild(this.#root);
+        this.enableDrag();
         this.initControls();
         this.#contentEl = createEle("div", {
             class: "_evm_controls"
@@ -84,6 +88,29 @@ export default class UIRender {
 
         this.#root.append(this.#contentEl);
 
+    }
+
+    enableDrag() {
+        // document.body.draggable = true;
+        const el = this.#root;
+        el.ondragstart = function (ev: DragEvent) {
+            ev.currentTarget!.style.border = "dashed";
+            ev.dataTransfer!.effectAllowed = "move";
+            console.log("ondragstart");
+        }
+
+        el.ondrag = function (ev: DragEvent) {
+            console.log("ondrag");
+        }
+
+        document.body.ondragover = function (ev) {
+            ev.preventDefault();
+            ev.dataTransfer!.dropEffect = "move"
+        }
+        el.ondrop = function (ev) {
+            console.log("ondragend");
+            ev.preventDefault();
+        }
     }
 
     initControls() {
@@ -113,7 +140,7 @@ export default class UIRender {
     }
 
     createSingleEvmHTMLString(data: any, title: string = ''): string {
-        if (!data) {
+        if (!data || data.length <= 0) {
             return ''
         }
         return `
@@ -126,7 +153,7 @@ export default class UIRender {
                     <td>详情</td>
                 </tr>
             </thead>
-            ${data.map(this.renderItem)}
+            ${data.map(this.renderItem).join('')}
         </table> 
         `
     }
