@@ -4,8 +4,6 @@ import "./events";
 
 const app = document.querySelector<HTMLDivElement>('#app')!
 
-
-
 const btn1El: HTMLButtonElement = document.getElementById("btn1") as HTMLButtonElement;
 
 

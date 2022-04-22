@@ -17,6 +17,14 @@ const evm = install({
 
 evm.start();
 
-document.getElementById('btnRender')?.addEventListener("click", function(){
-    evm.render.render
+document.getElementById('btnStatistic')?.addEventListener("click", function(){
+    console.log('evm:', evm);
+    // evm.eTarget.statistics().then(res=> console.log(res));
+
+    evm.evm.eTarget.statistics()
+    .then(res=> console.log('统计信息-Node节点:', res));
+ 
+    evm.evm.events.statistics()
+    .then(res=> console.log('统计信息-EventEmitter:', res));
+
 })
